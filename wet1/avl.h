@@ -55,7 +55,7 @@ namespace DS
 		* if <data> == NULL, return NULL.
 		* Complexity = O(log(n))
 		*/
-		T* find(T* data) const;  
+		bool find(T* data) const;
 		
 		/*
 		* return the first/last node by inorder
@@ -94,7 +94,7 @@ namespace DS
 /*******************************************************************************/
 /*******************************************************************************/
 	template <typename T>
-	AVL<T>~AVL()
+	AVL<T>::~AVL()
 	{
 		if (!isEmpty())
 		{
@@ -103,7 +103,7 @@ namespace DS
 	}
 	
 	template <typename T>
-	void RecDestroyAVL(AvlNode* node)
+	void RecDestroyAVL(typename AVL<T>::AvlNode* node)
 	{
 		if (node)
 		{	
@@ -140,7 +140,7 @@ namespace DS
 	}
 
 	template <typename T>
-	const size_t RecSize(AvlNode* node)
+	const size_t RecSize(typename AVL<T>::AvlNode* node)
 	{
 		if (node == nullptr)
 		{
@@ -175,7 +175,7 @@ namespace DS
 	}
 
 	template <typename T>
-	const bool RecFind(AvlNode* node, T* data)
+	const bool RecFind(typename AVL<T>::AvlNode* node, T* data)
 	{
 		if (node == nullptr)
 		{
