@@ -2,6 +2,8 @@
 	"files.associations": {
 		"make": "makefile",
 		"string_view": "cpp",
-		"streambuf": "cpp"
+		"streambuf": "cpp",
+		"array": "cpp",
+		"string": "cpp"
 	}
 }
