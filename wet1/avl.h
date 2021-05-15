@@ -18,7 +18,7 @@ namespace DS
 	class AVL
 	{
 	public:
-		AVL(): m_root(nullptr) {}
+		AVL(): m_root(nullptr), m_start(nullptr), m_end(nullptr), m_iter(nullptr) { }
 		~AVL();
 
 		AVL(const AVL& ) = delete;
@@ -74,6 +74,11 @@ namespace DS
 		T* getLast() const;
 
 		/*
+		* Travel inorder, and put the first i nodes in arr
+		* Complexity = O(i)
+		 */
+		void inorder(size_t i, T* arr);
+		/*
 		* Prints the AVL tree Inorder
 		* Complexity = O(n)
 		*/
@@ -83,7 +88,7 @@ namespace DS
 	// AVL Node Structure
 		struct AvlNode
 		{	
-			AvlNode(T* data = nullptr, size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
+			AvlNode(T* data, size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
 				data(new T(*data)), height(height), left(l), right(r), parent(p) 
 			{ }
 			
@@ -109,9 +114,15 @@ namespace DS
 		AvlNode* RightMostNode(AvlNode* node);
 		AvlNode* LeftMostNode(AvlNode* node);
 		AvlNode* RemoveRec(AvlNode* node, T* data);
+		void AVLBegin();
+		void AVLNext();
 		void  AVLPrintNode(AvlNode* node, size_t depth) const;
+
 	// Private member
 		AvlNode* m_root;
+		AvlNode* m_start;
+		AvlNode* m_end;
+		AvlNode* m_iter;
 	};
 
 
@@ -227,12 +238,7 @@ namespace DS
 	template <typename T>
 	T* AVL<T>::getFirst() const
 	{
-		if (m_root == nullptr)
-		{
-			return (nullptr);	
-		}
-		
-		return LeftMostNode(m_root);
+		return m_start->data;
 	}
 
 	template <typename T>
@@ -253,11 +259,15 @@ namespace DS
 		if(isEmpty())
 		{	 
 			m_root = new AvlNode(data);
-
+			m_start = m_root;
+			
 			return;
 		}
 
 		m_root = InsertRec(m_root, data);
+		m_start = LeftMostNode(m_root);
+		m_end = RightMostNode(m_root);
+
 	}
 
 	template <typename T>
@@ -405,6 +415,9 @@ namespace DS
 		}
 		
 		m_root = RemoveRec(m_root, data);
+
+		m_start = LeftMostNode(m_root);
+		m_end = RightMostNode(m_root);
 	}	
 
 	template <typename T>
@@ -438,7 +451,6 @@ namespace DS
 				/* one son */
 				if (replacer)
 				{														
-					// node->data = replacer->data;
 					delete (node->data);
 					node->data = new T(*(replacer->data));
 
@@ -467,17 +479,11 @@ namespace DS
 			{
 				replacer = RightMostNode(node->left);
 
-				// node->data = replacer->data;
 				delete (node->data);
 				node->data = new T(*(replacer->data));
 				node->left = RemoveRec(node->left, node->data);
 			}
 		}
-
-		// if (nullptr == node)
-		// {
-		// 	return (nullptr);
-		// } 
 
 		/* Height Update */
 		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
@@ -494,9 +500,12 @@ namespace DS
 	template <typename T>
 	typename AVL<T>::AvlNode* AVL<T>::RightMostNode(AvlNode* node)
 	{
-		while (node->right)
+		if (node)
 		{
-			node = node->right;
+			while (node->right)
+			{
+				node = node->right;
+			}
 		}
 
 		return (node);
@@ -505,14 +514,61 @@ namespace DS
 	template <typename T>
 	typename AVL<T>::AvlNode* AVL<T>::LeftMostNode(AvlNode* node)
 	{
-		while (node->left)
+		if (node)
 		{
-			node = node->left;
+			while (node->left)
+			{
+				node = node->left;
+			}
 		}
 
 		return (node);
 	}
+/*******************************************************************************/
+	template <typename T>
+	void AVL<T>::AVLBegin()
+	{
+		m_iter = m_start;
+	}
+	
+	template <typename T>
+	void AVL<T>::AVLNext()
+	{
+		// if (m_iter == m_end) { return }
+		if (m_iter->right)
+		{
+			m_iter = m_iter->right;
 
+			m_iter = LeftMostNode(m_iter);
+			return;
+		}
+
+		while (m_iter->parent != nullptr &&
+			m_iter->parent->right  &&
+			m_iter == m_iter->parent->right)
+		{
+			m_iter = m_iter->parent;
+		}
+
+		m_iter = m_iter->parent;
+	}
+
+	template <typename T>
+	void AVL<T>::inorder(size_t i, T* arr)
+	{
+		size_t counter = 0;
+		
+		for (AVLBegin(); m_iter != m_end && counter < i; AVLNext(), counter++)
+		{
+			arr[counter] = *(m_iter->data);
+		}
+
+		if (counter < i && m_iter == m_end)
+		{
+			arr[counter] = *(m_iter->data);
+		}
+		
+	}
 /*******************************************************************************/
 	template <typename T>
 	void  AVL<T>::AVLPrintNode(AvlNode* node, size_t depth) const
@@ -544,6 +600,7 @@ namespace DS
 			AVLPrintNode(m_root->right, 1);
 		}
 	}
+
 } // namespace DS
 
 

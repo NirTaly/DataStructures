@@ -15,14 +15,28 @@ namespace DS
     public:
 		struct DListNode
         {
-			DListNode(T* data = nullptr, DListNode* next = nullptr ,DListNode* prev = nullptr) : 
-				data(new T(*m_data)), m_prev(prev), m_next(next) { }
+			DListNode(T* data = nullptr, DListNode* prev = nullptr ,DListNode* next = nullptr) : 
+				m_data(nullptr), m_prev(prev), m_next(next) 
+            { 
+                if (data)
+                {
+                    m_data = new T(*data);
+                }
+            }
 			
-			~DListNode() { delete m_data; m_next = nullptr; m_prev = nullptr; }
+			~DListNode() 
+            { 
+                if (m_data)
+                {
+                    delete m_data; 
+                }
+                m_next = nullptr; 
+                m_prev = nullptr; 
+            }
 
+            T* m_data;
             DListNode* m_prev;
             DListNode* m_next;
-            T* m_data;
         };
 
         DList();
@@ -51,16 +65,19 @@ namespace DS
     };
 
     template <class T>
-    DList<T>::DList() 
+    DList<T>::DList()
 	{ 
 		m_start.m_next = &m_end;
+		m_start.m_prev = nullptr;
+
 		m_end.m_prev = &m_start;
+		m_end.m_next = nullptr;
 	}
     
     template <class T>
     DList<T>::~DList(void)
     {
-        while (!IsEmpty())
+        while (!isEmpty())
         {
             pop();
         }
@@ -78,7 +95,7 @@ namespace DS
         size_t counter = 0;
 
         DListNode* iter = m_start.m_next;
-        while (iter)
+        while (iter != &m_end)
         {
             counter++;   
             iter = iter->m_next;
@@ -88,35 +105,36 @@ namespace DS
     }
 
     template <class T>
-	DList<T>::DListNode* DList<T>::pushAfter(T* const data, DListNode* curr)
+	typename DList<T>::DListNode* DList<T>::pushAfter(T* const data, DListNode* curr)
     {
         DListNode* new_node = nullptr;
         if(!curr)
         {
-            new_node = new DListNode(data, &m_start, &m_end);
+            new_node = new DListNode(data, &m_start, m_start.m_next);
+			m_start.m_next->m_prev = new_node;
             m_start.m_next = new_node;
-			m_end.m_prev = new_node;
         }
         else
         {
             new_node = new DListNode(data, curr, curr->m_next);
-            curr->m_next = new_node;
             curr->m_next->m_prev = new_node;
+            curr->m_next = new_node;
         }
+
         return new_node;
 
     }
 
 	template <class T>
-	DList<T>::DListNode* DList<T>::pushBefore(T* const data, DListNode* curr)
+	typename DList<T>::DListNode* DList<T>::pushBefore(T* const data, DListNode* curr)
 	{
 		DListNode* new_node = nullptr;
 		
-		if (isEmpty())
+		if (!curr)
 		{
-			new_node = new DListNode(data,  &m_start, &m_end);
+			new_node = new DListNode(data,  &m_start,  m_start.m_next);
+			m_start.m_next->m_prev = new_node;
 			m_start.m_next = new_node;
-			m_end.m_prev = new_node;
 		}
 		else
 		{
@@ -131,7 +149,7 @@ namespace DS
     template <class T>
     void DList<T>::pop(void)
     {
-        Node *deleted_node = m_start.m_next; 
+        DListNode* deleted_node = m_start.m_next; 
 
         if (deleted_node != &m_end)
         {

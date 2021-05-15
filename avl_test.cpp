@@ -28,6 +28,7 @@ void RemoveTest(void);
 void RemoveUltimateTest(void);
 void RemoveUltimateTest2(void);
 void RemoveUltimateTest3(void);
+void inorderTest();
 /*****************************************************************************/
 /*
 	[x]	Create
@@ -64,6 +65,8 @@ int main(void)
 
 	RemoveUltimateTest3();
 
+	inorderTest();
+	
 	return 0;
 }
 
@@ -236,7 +239,6 @@ void RemoveUltimateTest2(void)
 	tree.print();
 }
 
-
 void RemoveUltimateTest3(void)
 {
 	AVL<int> tree;
@@ -283,4 +285,26 @@ void RemoveUltimateTest3(void)
 	
 	printf("\n\n\t\t\tRemove ALL ");
 	TEST_INT(9, tree.isEmpty(), true, "IsEmpty when not empty")
+}
+
+void inorderTest()
+{
+	AVL<int> tree;
+
+	tree.insert(&array[7]);
+	tree.insert(&array[0]);
+	tree.insert(&array[5]);
+	tree.insert(&array[9]);
+	tree.insert(&array[8]);
+	tree.insert(&array[2]);
+	tree.insert(&array[3]);
+	tree.insert(&array[4]);
+	tree.insert(&array[6]);
+	tree.insert(&array[1]);
+
+	tree.print();
+
+	int arr[10];
+	tree.inorder(10, arr);
+	TEST_ARRAY(arr,array, 10)
 }
