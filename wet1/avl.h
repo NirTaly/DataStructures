@@ -84,7 +84,8 @@ namespace DS
 		struct AvlNode
 		{	
 			AvlNode(T* data = nullptr, size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
-				data(new T(*data)), height(height), left(l), right(r), parent(p) { }
+				data(new T(*data)), height(height), left(l), right(r), parent(p) 
+			{ }
 			
 			~AvlNode() { delete data; left = nullptr; right = nullptr; parent = nullptr;}
 
@@ -252,10 +253,6 @@ namespace DS
 		if(isEmpty())
 		{	 
 			m_root = new AvlNode(data);
-			if (!m_root)
-			{
-				throw std::bad_alloc();
-			}
 
 			return;
 		}
@@ -274,10 +271,6 @@ namespace DS
 			(left_son && node->left == nullptr))
 		{
 			AvlNode* tmp = new AvlNode(data);
-			if (!tmp)
-			{
-				throw std::bad_alloc();
-			}
 
 			if (right_son)
 			{
