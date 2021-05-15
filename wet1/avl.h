@@ -1,11 +1,12 @@
 #ifndef __AVL_TREE_H__
 #define __AVL_TREE_H__
 
+#include <iostream>
 #include <stddef.h>      /* size_t */
 #include "exceptions.h"
 
 template <typename T>
-T MAX(T a, T b)
+T Max(T a, T b)
 {
 	return (a > b ? a : b);
 }
@@ -79,28 +80,36 @@ namespace DS
 		void print() const;
 
 	private:
+	// AVL Node Structure
 		struct AvlNode
 		{	
-			AvlNode(size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr,T* data = nullptr) : 
-				height(height), left(l), right(r), parent(p), data(data) { }
+			AvlNode(T* data = nullptr, size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
+				data(new T(*data)), height(height), left(l), right(r), parent(p) { }
+			
+			~AvlNode() { delete data; left = nullptr; right = nullptr; parent = nullptr;}
 
+			T* data;
 			size_t height;
 			AvlNode* left;
 			AvlNode* right;
 			AvlNode* parent;
-			T* data;
 		};
-
+		
+	// Aux Functions
 		void RecDestroyAVL(AvlNode* node);
-		size_t RecSize(AvlNode* node);
-		AvlNode* InsertRec(typename AVL<T>::AvlNode* node, T* data);
-		size_t NodeHeight(typename AVL<T>::AvlNode* node);
-		int BalanceFactor(typename AVL<T>::AvlNode* node);
-		AVL<T>::AvlNode* LRotate(AvlNode* node);
-		AVL<T>::AvlNode* RRotate(AvlNode* node);
+		size_t RecSize(AvlNode* node) const;
+		bool RecFind(AvlNode* node, T* data) const;
+		AvlNode* InsertRec(AvlNode* node, T* data);
+		size_t NodeHeight(AvlNode* node) const;
+		int BalanceFactor(AvlNode* node) const;
+		AvlNode* AVLBalance(AvlNode* node);
+		AvlNode* LRotate(AvlNode* node);
+		AvlNode* RRotate(AvlNode* node);
 		AvlNode* RightMostNode(AvlNode* node);
 		AvlNode* LeftMostNode(AvlNode* node);
-		
+		AvlNode* RemoveRec(AvlNode* node, T* data);
+		void  AVLPrintNode(AvlNode* node, size_t depth) const;
+	// Private member
 		AvlNode* m_root;
 	};
 
@@ -112,22 +121,19 @@ namespace DS
 	{
 		if (!isEmpty())
 		{
-			DestroyAVL(m_root);
+			RecDestroyAVL(m_root);
 		}
 	} 
 	
 	template <typename T>
-	void RecDestroyAVL(typename AVL<T>::AvlNode* node)
+	void AVL<T>::RecDestroyAVL(AvlNode* node)
 	{
 		if (node)
 		{	
-			DestroyAVL(node->left);
-			DestroyAVL(node->right);
+			RecDestroyAVL(node->left);
+			RecDestroyAVL(node->right);
 
-			delete node->data;
-			node->left = nullptr;
-			node->right = nullptr;
-			node->parent = nullptr;
+			delete node;
 		}
 	}
 /*******************************************************************************/
@@ -154,7 +160,7 @@ namespace DS
 	}
 
 	template <typename T>
-	size_t RecSize(typename AVL<T>::AvlNode* node)
+	size_t AVL<T>::RecSize(AvlNode* node) const
 	{
 		if (node == nullptr)
 		{
@@ -185,11 +191,11 @@ namespace DS
 			throw AVLEmpty();
 		}
 
-		RecFind(m_root);
+		return RecFind(m_root, data);
 	}
 
 	template <typename T>
-	bool RecFind(typename AVL<T>::AvlNode* node, T* data)
+	bool AVL<T>::RecFind(AvlNode* node, T* data) const
 	{
 		if (node == nullptr)
 		{
@@ -204,13 +210,13 @@ namespace DS
 			return true;
 		}
 
-		else if (*(node->data) < *data)
+		else if (*(node->data) > *data)
 		{
-			left_tree = RecFind(node->left);
+			left_tree = RecFind(node->left, data);
 		}
 		else
 		{
-			right_tree = RecFind(node->right);
+			right_tree = RecFind(node->right, data);
 		}
 
 		return (left_tree || right_tree);
@@ -245,18 +251,20 @@ namespace DS
 	{
 		if(isEmpty())
 		{	 
-			m_root = new AvlNode(0,nullptr,nullptr,nullptr,data);
+			m_root = new AvlNode(data);
 			if (!m_root)
 			{
 				throw std::bad_alloc();
 			}
+
+			return;
 		}
 
 		m_root = InsertRec(m_root, data);
 	}
 
 	template <typename T>
-	typename AVL<T>::AvlNode* InsertRec(typename AVL<T>::AvlNode* node, T* data)
+	typename AVL<T>::AvlNode* AVL<T>::InsertRec(AvlNode* node, T* data)
 	{
 		/* insert to the right place */
 		bool left_son = *(data) < *(node->data);
@@ -265,7 +273,7 @@ namespace DS
 		if ((right_son && node->right == nullptr) || 
 			(left_son && node->left == nullptr))
 		{
-			typename AVL<T>::AvlNode* tmp = new typename AVL<T>::AvlNode(0,nullptr,nullptr,nullptr,data);
+			AvlNode* tmp = new AvlNode(data);
 			if (!tmp)
 			{
 				throw std::bad_alloc();
@@ -286,11 +294,11 @@ namespace DS
 		/* moving to the correct son */
 		else if (right_son)
 		{
-			InsertRec(node->right, data);
+			node->right = InsertRec(node->right, data);
 		}
 		else if (left_son)
 		{
-			InsertRec(node->left, data);
+			node->left = InsertRec(node->left, data);
 		}
 		/*	Duplicate nodes are not allowed */
 		else
@@ -299,14 +307,16 @@ namespace DS
 		}
 
 		/* height update */
-		node->height = 1 + MAX(NodeHeight(node->left), NodeHeight(node->right));
+		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
 		
 		/* balancing */
-		return AVLBalance(node);
+		node = AVLBalance(node);
+
+		return node;
 	}
 
 	template <typename T>
-	typename AVL<T>::AvlNode* AVLBalance(typename AVL<T>::AvlNode* node)
+	typename AVL<T>::AvlNode* AVL<T>::AVLBalance(AvlNode* node)
 	{
 		int balance_fac = BalanceFactor(node);
 		
@@ -334,46 +344,56 @@ namespace DS
 	}
 
 	template <typename T>
-	typename AVL<T>::AvlNode* RRotate(typename AVL<T>::AvlNode* node)
+	typename AVL<T>::AvlNode* AVL<T>::RRotate(AvlNode* node)
 	{
-		typename AVL<T>::AvlNode* new_head = node->left;
+		AvlNode* new_head = node->left;
 
 		node->left = new_head->right;
-		new_head->right->parent = node->parent;
-
 		new_head->right = node;
+
+		if (node->left)
+		{
+			node->left->parent = node;
+		}
+		
+		new_head->parent = node->parent;
 		node->parent = new_head;
 
-		node->height = 1 + MAX(NodeHeight(node->left), NodeHeight(node->right));
-		new_head->height = 1 + MAX(NodeHeight(new_head->left), NodeHeight(new_head->right));
+		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
+		new_head->height = 1 + Max(NodeHeight(new_head->left), NodeHeight(new_head->right));
 
 		return (new_head);
 	}
 
 	template <typename T>
-	typename AVL<T>::AvlNode* LRotate(typename AVL<T>::AvlNode* node)
+	typename AVL<T>::AvlNode* AVL<T>::LRotate(AvlNode* node)
 	{
-		typename AVL<T>::AvlNode* new_head = node->right;
+		AvlNode* new_head = node->right;
 		
 		node->right = new_head->left;
-		new_head->left->parent = node->right;
-
 		new_head->left = node;
+
+		if (node->right)
+		{
+			node->right->parent = node;
+		}
+
+		new_head->parent = node->parent;
 		node->parent = new_head;
 
-		node->height = 1 + MAX(NodeHeight(node->left), NodeHeight(node->right));
-		new_head->height = 1 + MAX(NodeHeight(new_head->left), NodeHeight(new_head->right));
+		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
+		new_head->height = 1 + Max(NodeHeight(new_head->left), NodeHeight(new_head->right));
 
 		return (new_head);
 	}
 	template <typename T>
-	int BalanceFactor(typename AVL<T>::AvlNode* node)
+	int AVL<T>::BalanceFactor(AvlNode* node) const
 	{
 		return (NodeHeight(node->right) - NodeHeight(node->left));
 	}
 	
 	template <typename T>
-	size_t NodeHeight(typename AVL<T>::AvlNode* node)
+	size_t AVL<T>::NodeHeight(AvlNode* node) const
 	{
 		if (node)
 		{
@@ -383,14 +403,25 @@ namespace DS
 		return (0);
 	}
 /*******************************************************************************/
-	void remove(T *data)
+	template <typename T>
+	void AVL<T>::remove(T *data)
 	{
+		if (isEmpty())
+		{
+			throw AVLEmpty();
+		}
+		
 		m_root = RemoveRec(m_root, data);
 	}	
 
 	template <typename T>
-	typename AVL<T>::AvlNode* RemoveRec(typename AVL<T>::AvlNode* node, T* data)
+	typename AVL<T>::AvlNode* AVL<T>::RemoveRec(AvlNode* node, T* data)
 	{	
+		if (nullptr == node)
+		{
+			throw AVLNotFound();
+		}
+	
 		bool left_son = *(data) < *(node->data);
 		bool right_son = *(data) > *(node->data);
 
@@ -405,14 +436,19 @@ namespace DS
 		}
 		else
 		{
+			AVL<T>::AvlNode* replacer = nullptr;
+			
 			/* one son or no sons */	
 			if (!node->left || !node->right)
 			{
 				replacer = (node->left) ? (node->left) : (node->right);
 				/* one son */
 				if (replacer)
-				{
-					node->data = replacer->data;
+				{														
+					// node->data = replacer->data;
+					delete (node->data);
+					node->data = new T(*(replacer->data));
+
 					if (replacer == node->left)
 					{
 						node->left = nullptr; 
@@ -430,6 +466,7 @@ namespace DS
 				{
 					delete node;
 					node = nullptr;
+					return node;
 				}
 			}
 			/* two sons */
@@ -437,17 +474,32 @@ namespace DS
 			{
 				replacer = RightMostNode(node->left);
 
-				node->data = replacer->data;
+				// node->data = replacer->data;
+				delete (node->data);
+				node->data = new T(*(replacer->data));
 				node->left = RemoveRec(node->left, node->data);
 			}
-
 		}
+
+		// if (nullptr == node)
+		// {
+		// 	return (nullptr);
+		// } 
+
+		/* Height Update */
+		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
+
+		/* balancing */
+		node = AVLBalance(node);
+
+		return (node);
 	}
 
+/*******************************************************************************/
 
 
 	template <typename T>
-	typename AVL<T>::AvlNode* RightMostNode(typename AVL<T>::AvlNode* node)
+	typename AVL<T>::AvlNode* AVL<T>::RightMostNode(AvlNode* node)
 	{
 		while (node->right)
 		{
@@ -458,7 +510,7 @@ namespace DS
 	}
 	
 	template <typename T>
-	typename AVL<T>::AvlNode* LeftMostNode(typename AVL<T>::AvlNode* node)
+	typename AVL<T>::AvlNode* AVL<T>::LeftMostNode(AvlNode* node)
 	{
 		while (node->left)
 		{
@@ -466,6 +518,38 @@ namespace DS
 		}
 
 		return (node);
+	}
+
+/*******************************************************************************/
+	template <typename T>
+	void  AVL<T>::AVLPrintNode(AvlNode* node, size_t depth) const
+	{
+		size_t i = 0;
+		for (i = 0; i < depth; ++i)
+		{
+			std::cout << "│  ";
+		}
+		if (nullptr != node)
+		{
+			std::cout << "├╴ " << *(node->data) << std::endl;
+			AVLPrintNode(node->left, depth + 1);
+			AVLPrintNode(node->right, depth + 1);
+		} else {
+			std::cout << "├╴ X" << std::endl;
+		}
+	}
+
+	template <typename T>
+	void AVL<T>::print() const
+	{
+		if (nullptr != m_root)
+		{
+			std::cout << "\nStart Print:" << std::endl;
+			std::cout << "├╴ " << *(m_root->data) << std::endl;
+
+			AVLPrintNode(m_root->left, 1);
+			AVLPrintNode(m_root->right, 1);
+		}
 	}
 } // namespace DS
 
