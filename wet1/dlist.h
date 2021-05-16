@@ -55,11 +55,9 @@ namespace DS
 
         bool isEmpty(void) const;
 
-		// template <typename Func>
-		// void forEach(DListNode* start = m_start.m_next, DListNode* end = &m_end);
-
+        void print();
     private: 
-
+    
         DListNode m_start;
         DListNode m_end;
     };
@@ -172,6 +170,16 @@ namespace DS
 		}
         
 
+    }
+    
+    template <class T>
+    void DList<T>::print()
+    {
+        for (DListNode* runner = m_start.m_next; runner != &m_end; runner = runner->m_next)
+        {
+            std::cout << *(runner->m_data) << " ";
+        }
+        std::cout << std::endl;
     }
 
 } // DS
