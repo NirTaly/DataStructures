@@ -5,6 +5,7 @@
 #include <stddef.h>      /* size_t */
 #include "avl.h"
 #include "dlist.h"
+#include "library.h"
 
 #define BAD_TYPE -1
 #define MIN_TYPE -2
@@ -74,19 +75,28 @@ namespace DS
 		DList<DList<CarInfo>>::DListNode* type_unrank_ptr;
 	};
 	
-    struct CarManager
+    struct CarDealershipManager
     {
-        CarManager() : top_seller(BAD_TYPE)
-		{ 
-			CarInfo zero_rank(MIN_TYPE, 0, 0, &unranked);
-			ranked.insert(&zero_rank);//for init
-		}
-        ~CarManager() = default;
+        CarDealershipManager();
+        ~CarDealershipManager() = default;
+		CarDealershipManager(const CarDealershipManager&) = delete;
+		CarDealershipManager& operator=(const CarDealershipManager& ) = delete;
 
+		StatusType AddCarType(void *DS, int typeID, int numOfModels);
+		
+		StatusType SellCar(void *DS, int typeID, int modelID);
+
+		StatusType MakeComplaint(void *DS, int typeID, int modelID, int t);
+
+		StatusType GetBestSellerModelByType(void *DS, int typeID, int * modelID);
+
+		StatusType GetWorstModels(void *DS, int numOfModels, int *types, int *models);
+
+		/*******************************/
         AVL<CarInfo> best_sales;
         DList<DList<CarInfo>> unranked;
         AVL<CarInfo> ranked;
-        AVL<TypeInfo> types;
+        AVL<TypeInfo> type;
         CarInfo top_seller;
 	};
 }
