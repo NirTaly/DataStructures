@@ -46,7 +46,7 @@ namespace DS
         DList();
         ~DList();
 
-        DList(const DList& s) = delete;
+        DList(const DList& d);
         DList& operator=(const DList& rhs) = delete; 
 
         void pop(void);
@@ -59,6 +59,7 @@ namespace DS
 
         bool isEmpty(void) const;
 
+        DListNode* begin();
         void print();
     private: 
     
@@ -82,6 +83,24 @@ namespace DS
         while (!isEmpty())
         {
             pop();
+        }
+    }
+
+    template <class T>
+    DList<T>::DList(const DList<T>& d)
+    {
+        m_start.m_next = &m_end;
+		m_start.m_prev = nullptr;
+		m_end.m_prev = &m_start;
+		m_end.m_next = nullptr;
+
+        DListNode* runner = d.begin();
+        DListNode* new_runner = &m_start;
+
+        while (runner != d.m_end)
+        {
+            new_runner = pushAfter(runner->data,new_runner);
+            runner = runner->m_next;
         }
     }
 
@@ -175,7 +194,13 @@ namespace DS
         
 
     }
-    
+
+    template <class T>
+    typename DList<T>::DListNode* DList<T>::begin()
+    {
+        return m_start.m_next;
+    }    
+
     template <class T>
     void DList<T>::print()
     {
@@ -185,6 +210,7 @@ namespace DS
         }
         std::cout << std::endl;
     }
+
 
 } // DS
 
