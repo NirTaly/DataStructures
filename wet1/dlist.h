@@ -1,8 +1,12 @@
 /******************************************************************************
-                                Singley Linked List
-                                    Nir Tali
-                                    20.02.19
+                                Double Linked List
+                               Nir Tali Roee Latzres
+                                    19.5.21
  *****************************************************************************/
+#ifndef __DOUBLE_LINKED_LIST_H__
+#define __DOUBLE_LINKED_LIST_H__
+
+#include <stddef.h>      /* size_t */
 #include <iostream>      // size_t
 
 using std::size_t;
@@ -183,3 +187,5 @@ namespace DS
     }
 
 } // DS
+
+#endif     /* __DOUBLE_LINKED_LIST_H__ */

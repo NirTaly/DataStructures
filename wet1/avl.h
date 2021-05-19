@@ -17,6 +17,8 @@ namespace DS
 	template <typename T>
 	class AVL
 	{
+	struct AvlNode; // declaration
+
 	public:
 		AVL(): m_root(nullptr), m_start(nullptr), m_end(nullptr), m_iter(nullptr) { }
 		~AVL();
@@ -62,7 +64,8 @@ namespace DS
 		* if <data> == NULL, return NULL.
 		* Complexity = O(log(n))
 		*/
-		bool find(T* data) const;
+		bool find(T* data);
+		T* findData(T* data);
 		
 		/*
 		* return the first/last node by inorder
@@ -72,7 +75,7 @@ namespace DS
 		*/
 		T* getFirst() const;
 		T* getLast() const;
-
+		T* getNextData(AvlNode* node);
 		/*
 		* Travel inorder, and put the first i nodes in arr
 		* Complexity = O(i)
@@ -104,7 +107,7 @@ namespace DS
 	// Aux Functions
 		void RecDestroyAVL(AvlNode* node);
 		size_t RecSize(AvlNode* node) const;
-		bool RecFind(AvlNode* node, T* data) const;
+		T* RecFind(AvlNode* node, T* data);
 		AvlNode* InsertRec(AvlNode* node, T* data);
 		size_t NodeHeight(AvlNode* node) const;
 		int BalanceFactor(AvlNode* node) const;
@@ -116,6 +119,8 @@ namespace DS
 		AvlNode* RemoveRec(AvlNode* node, T* data);
 		void AVLBegin();
 		void AVLNext();
+		AvlNode* AVLNext(AvlNode* node);
+		
 		void  AVLPrintNode(AvlNode* node, size_t depth) const;
 
 	// Private member
@@ -196,7 +201,13 @@ namespace DS
 /*******************************************************************************/
 
 	template <typename T>
-	bool AVL<T>::find(T* data) const
+	bool AVL<T>::find(T* data)
+	{
+		return (nullptr != findData(data));
+	}
+	
+	template <typename T>
+	T* AVL<T>::findData(T* data)
 	{
 		if(isEmpty())
 		{	 
@@ -205,39 +216,39 @@ namespace DS
 
 		return RecFind(m_root, data);
 	}
-
+	
 	template <typename T>
-	bool AVL<T>::RecFind(AvlNode* node, T* data) const
+	T* AVL<T>::RecFind(AvlNode* node, T* data)
 	{
 		if (node == nullptr)
 		{
-			return (false);	
+			return (nullptr);	
 		}
-
-		bool left_tree = false;
-		bool right_tree = false;
 
 		if (*(node->data) == *data)
 		{
-			return true;
+			return data;
 		}
 
 		else if (*(node->data) > *data)
 		{
-			left_tree = RecFind(node->left, data);
+			return RecFind(node->left, data);
 		}
 		else
 		{
-			right_tree = RecFind(node->right, data);
+			return RecFind(node->right, data);
 		}
-
-		return (left_tree || right_tree);
 	}
 /*******************************************************************************/
 	
 	template <typename T>
 	T* AVL<T>::getFirst() const
 	{
+		if (m_root == nullptr)
+		{
+			return (nullptr);	
+		}
+
 		return m_start->data;
 	}
 
@@ -249,12 +260,12 @@ namespace DS
 			return (nullptr);	
 		}
 		
-		return RightMostNode(m_root);
+		return m_end->data;
 	}
 
 /*******************************************************************************/
 	template <typename T>
-	void AVL<T>::insert(T *data)
+	void AVL<T>::insert(T* data)
 	{
 		if(isEmpty())
 		{	 
@@ -532,25 +543,28 @@ namespace DS
 	}
 	
 	template <typename T>
+	typename AVL<T>::AvlNode* AVL<T>::AVLNext(AvlNode* node)
+	{
+		if (node->right)
+		{
+			node = node->right;
+
+			return LeftMostNode(node);
+		}
+
+		while (node->parent != nullptr &&
+			node->parent->right  &&
+			node == node->parent->right)
+		{
+			node = node->parent;
+		}
+
+		return node->parent;
+	}
+	template <typename T>
 	void AVL<T>::AVLNext()
 	{
-		// if (m_iter == m_end) { return }
-		if (m_iter->right)
-		{
-			m_iter = m_iter->right;
-
-			m_iter = LeftMostNode(m_iter);
-			return;
-		}
-
-		while (m_iter->parent != nullptr &&
-			m_iter->parent->right  &&
-			m_iter == m_iter->parent->right)
-		{
-			m_iter = m_iter->parent;
-		}
-
-		m_iter = m_iter->parent;
+		m_iter = AVLNext(m_iter);
 	}
 
 	template <typename T>
@@ -568,6 +582,12 @@ namespace DS
 			arr[counter] = *(m_iter->data);
 		}
 		
+	}
+
+	template <typename T>
+	T* AVL<T>::getNextData(AvlNode* node)
+	{
+		return (AVLNext(node))->data;
 	}
 /*******************************************************************************/
 	template <typename T>
