@@ -19,15 +19,15 @@ namespace DS
 			CarInfo model_info(typeID,model);	//data irrelevent
 			unranked_models.pushBefore(&model_info);
 		}
-        //pushAfter in Dlist should push all the way to the end?
 		
 		if (unranked.isEmpty())
 		{
-			unranked.pushAfter(&unranked_models);
+			DList<DList<CarInfo>>::DListNode* node = unranked.pushAfter(&unranked_models);
+
 		}
 		else
 		{
-			
+			unranked_models.pushAfter(type.findNext(&new_node)->models_unrank_ptr);
 		}
         
 	}

@@ -149,20 +149,10 @@ void FindForEachTest(void)
 {
 	AVL<int> tree;
 
-	try
-	{
-		tree.find(&array[1]);
-	}	catch(const AVLEmpty&)	{
-		print("AvlEmpty");
-	}
-	
 	tree.insert(&array[5]);
 	tree.insert(&array[4]);
 	tree.insert(&array[3]);
 
-	TEST_INT(7, tree.find(&array[3]), true, "Find data in tree")
-	TEST_INT(8, tree.find(&array[6]), false, "Find data not exist")
-	
 	try
 	{
 		tree.insert(&array[4]);
@@ -332,5 +322,17 @@ void nextDataTest()
 		TEST_IS_TRUE(*(tree.findNext(&array[i])) == (i+1))
 	}
 
-	TEST_IS_TRUE(tree.findNext(&array[9]) == nullptr)
+	try	{
+		tree.findNext(&array[10]);
+	}	catch(const AVLNotFound&)	{
+		print("AVLNotFound");
+	}
+
+	try	{
+		tree.findNext(&array[9]);
+	}	catch(const AVLNextNotFound&)	{
+		print("AVLNextNotFound");
+	}
+	
+	
 }
