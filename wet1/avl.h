@@ -66,7 +66,8 @@ namespace DS
 		*/
 		bool find(T* data);
 		T* findData(T* data);
-		
+		T* findNext(T* data);
+
 		/*
 		* return the first/last node by inorder
 		* Returns pointer to the data if found, nullptr else.
@@ -75,7 +76,6 @@ namespace DS
 		*/
 		T* getFirst() const;
 		T* getLast() const;
-		T* getNextData(AvlNode* node);
 		/*
 		* Travel inorder, and put the first i nodes in arr
 		* Complexity = O(i)
@@ -107,7 +107,7 @@ namespace DS
 	// Aux Functions
 		void RecDestroyAVL(AvlNode* node);
 		size_t RecSize(AvlNode* node) const;
-		T* RecFind(AvlNode* node, T* data);
+		AvlNode* RecFind(AvlNode* node, T* data);
 		AvlNode* InsertRec(AvlNode* node, T* data);
 		size_t NodeHeight(AvlNode* node) const;
 		int BalanceFactor(AvlNode* node) const;
@@ -119,7 +119,9 @@ namespace DS
 		AvlNode* RemoveRec(AvlNode* node, T* data);
 		void AVLBegin();
 		void AVLNext();
+		AvlNode* GetNode(T* data);
 		AvlNode* AVLNext(AvlNode* node);
+		T* GetNextData(AvlNode* node);
 		
 		void  AVLPrintNode(AvlNode* node, size_t depth) const;
 
@@ -214,11 +216,17 @@ namespace DS
 			throw AVLEmpty();
 		}
 
-		return RecFind(m_root, data);
+		AvlNode* found = RecFind(m_root, data);
+		if (!found)
+		{
+			return nullptr;
+		}
+
+		return (found->data);
 	}
 	
 	template <typename T>
-	T* AVL<T>::RecFind(AvlNode* node, T* data)
+	typename AVL<T>::AvlNode* AVL<T>::RecFind(AvlNode* node, T* data)
 	{
 		if (node == nullptr)
 		{
@@ -227,7 +235,7 @@ namespace DS
 
 		if (*(node->data) == *data)
 		{
-			return data;
+			return node;
 		}
 
 		else if (*(node->data) > *data)
@@ -545,6 +553,11 @@ namespace DS
 	template <typename T>
 	typename AVL<T>::AvlNode* AVL<T>::AVLNext(AvlNode* node)
 	{
+		if (node == m_end)
+		{
+			return nullptr;
+		}
+		
 		if (node->right)
 		{
 			node = node->right;
@@ -585,10 +598,23 @@ namespace DS
 	}
 
 	template <typename T>
-	T* AVL<T>::getNextData(AvlNode* node)
+	T* AVL<T>::findNext(T* data)//watch out for nullptr, use try catch
 	{
-		return (AVLNext(node))->data;
+		AvlNode* node = RecFind(m_root, data);
+		if (!node)
+		{
+			throw AVLNotFound();
+		}
+		
+		AvlNode* next = AVLNext(node);
+		if (!next)
+		{
+			return nullptr;
+		}
+
+		return next->data;
 	}
+	
 /*******************************************************************************/
 	template <typename T>
 	void  AVL<T>::AVLPrintNode(AvlNode* node, size_t depth) const

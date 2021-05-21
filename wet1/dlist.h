@@ -87,17 +87,17 @@ namespace DS
     }
 
     template <class T>
-    DList<T>::DList(const DList<T>& d)
+    DList<T>::DList(const DList<T>& list)
     {
         m_start.m_next = &m_end;
 		m_start.m_prev = nullptr;
 		m_end.m_prev = &m_start;
 		m_end.m_next = nullptr;
 
-        DListNode* runner = d.begin();
+        DListNode* runner = list.begin();
         DListNode* new_runner = &m_start;
 
-        while (runner != d.m_end)
+        while (runner != list.m_end)
         {
             new_runner = pushAfter(runner->data,new_runner);
             runner = runner->m_next;
