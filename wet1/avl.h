@@ -64,7 +64,6 @@ namespace DS
 		* if <data> == NULL, return NULL.
 		* Complexity = O(log(n))
 		*/
-		bool find(T* data);
 		T* findData(T* data);
 		T* findNext(T* data);
 
@@ -201,13 +200,6 @@ namespace DS
 		return m_root->height;
 	}
 /*******************************************************************************/
-
-	template <typename T>
-	bool AVL<T>::find(T* data)
-	{
-		return (nullptr != findData(data));
-	}
-	
 	template <typename T>
 	T* AVL<T>::findData(T* data)
 	{
@@ -219,7 +211,7 @@ namespace DS
 		AvlNode* found = RecFind(m_root, data);
 		if (!found)
 		{
-			return nullptr;
+			throw AVLNotFound();
 		}
 
 		return (found->data);
@@ -254,7 +246,7 @@ namespace DS
 	{
 		if (m_root == nullptr)
 		{
-			return (nullptr);	
+			throw AVLEmpty();
 		}
 
 		return m_start->data;
@@ -265,7 +257,7 @@ namespace DS
 	{
 		if (m_root == nullptr)
 		{
-			return (nullptr);	
+			throw AVLEmpty();
 		}
 		
 		return m_end->data;
@@ -598,7 +590,7 @@ namespace DS
 	}
 
 	template <typename T>
-	T* AVL<T>::findNext(T* data)//watch out for nullptr, use try catch
+	T* AVL<T>::findNext(T* data)
 	{
 		AvlNode* node = RecFind(m_root, data);
 		if (!node)
@@ -609,7 +601,7 @@ namespace DS
 		AvlNode* next = AVLNext(node);
 		if (!next)
 		{
-			return nullptr;
+			throw AVLNextNotFound();
 		}
 
 		return next->data;

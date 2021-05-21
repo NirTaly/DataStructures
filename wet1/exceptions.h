@@ -10,6 +10,8 @@ namespace DS
 	class AVLEmpty : public Exception {};
 	
 	class AVLNotFound : public Exception {};
+
+	class AVLNextNotFound : public Exception {};
 	
 	class AVLDuplicate : public Exception {};
 		
