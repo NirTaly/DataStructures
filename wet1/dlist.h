@@ -81,7 +81,7 @@ namespace DS
 	}
     
     template <class T>
-    DList<T>::~DList(void)
+    DList<T>::~DList()
     {
         while (!isEmpty())
         {
@@ -108,13 +108,13 @@ namespace DS
     }
 
     template <class T>
-    bool DList<T>::isEmpty(void) const
+    bool DList<T>::isEmpty() const
     {
         return (&m_end == m_start.m_next);
     }
 
     template <class T>
-    size_t DList<T>::size(void) const
+    size_t DList<T>::size() const
     {
         size_t counter = 0;
 

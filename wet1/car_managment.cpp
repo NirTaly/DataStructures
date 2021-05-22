@@ -88,7 +88,7 @@ namespace DS
 		if (avlnode_info->models_unrank_ptr[modelID] != nullptr)	//unranked model
 		{
 			UnrankInfo type_info(typeID);
-			DList<RankInfo>* dlist = (unranked.findData(&type_info))->list;
+			SharedPtr<DList<RankInfo>> dlist = (unranked.findData(&type_info))->list;
 			dlist->remove(avlnode_info->models_unrank_ptr[modelID]);
 
 			avlnode_info->models_unrank_ptr[modelID] = nullptr;
@@ -96,7 +96,6 @@ namespace DS
 			if (dlist->isEmpty())
 			{
 				unranked.remove(&type_info);
-				delete dlist;
 			}
 		}
 		else
