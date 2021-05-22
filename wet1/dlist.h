@@ -62,6 +62,7 @@ namespace DS
         bool isEmpty(void) const;
 
         DListNode* begin();
+        DListNode* end();
         void print();
     private: 
     
@@ -202,6 +203,12 @@ namespace DS
     typename DList<T>::DListNode* DList<T>::begin()
     {
         return m_start.m_next;
+    } 
+
+    template <class T>
+    typename DList<T>::DListNode* DList<T>::end()
+    {
+        return &m_end;
     }    
 
     template <class T>

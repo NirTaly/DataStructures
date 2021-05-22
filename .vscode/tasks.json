@@ -6,7 +6,10 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
-                "${file}",
+                "-DNDEBUG",
+                "-Wall",
+                "-Wextra",
+                "${fileDirname}/*.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

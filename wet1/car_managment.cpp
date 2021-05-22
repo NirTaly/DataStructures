@@ -2,6 +2,8 @@
 
 namespace DS
 {
+	CarInfo::~CarInfo() { }
+
 	CarDealershipManager::CarDealershipManager() : top_seller(BAD_TYPE)
 	{ 
 		RankInfo zero_rank(MIN_TYPE, 0, 0);
@@ -10,6 +12,11 @@ namespace DS
 
 	void CarDealershipManager::AddCarType(int typeID, int numOfModels)
 	{
+		if (typeID <= 0 || numOfModels <= 0)
+		{
+			throw InvalidInput();
+		}
+
         TypeInfo new_node(typeID, numOfModels);
         type.insert(&new_node);
 		TypeInfo* avlnode_data = type.findData(&new_node);
@@ -32,6 +39,11 @@ namespace DS
 
 	void CarDealershipManager::RemoveCarType(int typeID)
 	{
+		if (typeID <= 0)
+		{
+			throw InvalidInput();
+		}
+
 		TypeInfo info(typeID,1);
 		TypeInfo* avlnode_info = type.findData(&info);
 
@@ -57,6 +69,11 @@ namespace DS
 
 	void CarDealershipManager::SellCar(int typeID, int modelID)
 	{
+		if (typeID <= 0 || modelID < 0)
+		{
+			throw InvalidInput();
+		}
+
 		TypeInfo info(typeID,1);
 		TypeInfo* avlnode_info = type.findData(&info);
 		if (avlnode_info->num_of_models <= modelID)
@@ -99,6 +116,11 @@ namespace DS
 
 	void CarDealershipManager::MakeComplaint(int typeID, int modelID, int t)
 	{
+		if (typeID <= 0 || modelID < 0)
+		{
+			throw InvalidInput();
+		}
+
 		TypeInfo info(typeID,1);
 		TypeInfo* avlnode_info = type.findData(&info);
 		if (avlnode_info->num_of_models <= modelID)
@@ -117,7 +139,11 @@ namespace DS
 
 	void CarDealershipManager::GetBestSellerModelByType(int typeID, int * modelID)
 	{
-		if (0 == typeID)
+		if (typeID < 0)
+		{
+			throw InvalidInput();
+		}
+		else if (0 == typeID)
 		{
 			*modelID = best_sales.getLast()->getModel();
 		}
@@ -137,13 +163,38 @@ namespace DS
 			throw InvalidInput();
 		}
 		
-		RankInfo* rank_arr[numOfModels];
-		ranked.inorder(numOfModels, rank_arr);
-		for(int i = 0; i < numOfModels; i++)
+		RankInfo** rank_arr = new RankInfo*[numOfModels];
+		int counter = 0;
+
+		for (RankInfo* runner = ranked.AVLBegin(); 
+			counter < numOfModels && runner != ranked.AVLEnd(); 
+			runner = ranked.AVLNext())
 		{
-			types[i] = rank_arr[i]->getType();
-			models[i] = rank_arr[i]->getModel();
+			if (runner->isMin())
+			{
+				for (UnrankInfo* unranked_runner = unranked.AVLBegin(); 
+						counter < numOfModels && unranked_runner != unranked.AVLEnd(); 
+						unranked_runner = unranked.AVLNext())
+				{
+					for (DList<RankInfo>::DListNode* node = unranked_runner->list->begin(); 
+							counter < numOfModels && node != unranked_runner->list->end();
+							node = node->m_next, counter++)
+					{
+						types[counter] = node->m_data->getType();
+						models[counter] = node->m_data->getModel();
+					}
+				}
+				
+			}
+			else
+			{
+				types[counter] = rank_arr[counter]->getType();
+				models[counter] = rank_arr[counter]->getModel();
+				counter++;
+			}
 		}
+		
+		delete rank_arr;
 	}
 
 } // namespace DS

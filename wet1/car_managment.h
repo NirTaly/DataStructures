@@ -16,13 +16,7 @@ namespace DS
     class CarInfo
     {
 	public:
-		CarInfo(int type, int model = 0) : type(type), model(model) 
-		{ 
-			if (type <= 0 || model < 0)
-			{
-				throw InvalidInput();
-			}
-		}
+		CarInfo(int type, int model = 0) : type(type), model(model) { 	}
 		virtual ~CarInfo() = 0;
 		CarInfo(const CarInfo& ) = default;
 		CarInfo& operator=(const CarInfo& ) = default;
@@ -44,12 +38,13 @@ namespace DS
         int type;
         int model;
     };
-
+	
+	
 	class RankInfo : public CarInfo
 	{
 	public:
 		RankInfo(int type, int model = 0, int rank = 0) : CarInfo(type, model), rank(rank) { }
-		~RankInfo() = default;
+		virtual ~RankInfo() = default;
 
 		bool operator==(const RankInfo& car) {
 			return (CarInfo::operator==(car));
@@ -72,7 +67,7 @@ namespace DS
 	{
 	public:
 		SaleInfo(int type, int model = 0, int sales = 0) : CarInfo(type, model), sales(sales) { }
-		~SaleInfo() = default;
+		virtual ~SaleInfo() = default;
 
 		bool operator==(const SaleInfo& car) {
 			return (CarInfo::operator==(car));
@@ -98,11 +93,6 @@ namespace DS
 		TypeInfo(int type, int num_of_models) : type(type), models_sale(nullptr), 
 			models_rank(nullptr), models_unrank_ptr(nullptr), best_model(type), num_of_models(num_of_models)		
 		{	
-			if (type <= 0 || num_of_models <= 0)
-			{
-				throw InvalidInput();
-			}
-
 			models_sale = new int[num_of_models](); 
 			models_rank = new int[num_of_models]();
 			models_unrank_ptr = new DList<RankInfo>::DListNode*[num_of_models];
@@ -115,7 +105,8 @@ namespace DS
 			delete models_unrank_ptr;
 		}
 
-		TypeInfo(const TypeInfo& info) : type(info.type), best_model(info.best_model)
+		TypeInfo(const TypeInfo& info) : type(info.type), models_sale(nullptr), models_rank(nullptr), 
+			models_unrank_ptr(nullptr), best_model(info.best_model), num_of_models(info.num_of_models)
 		{
 			models_rank = new int[info.num_of_models];
 			models_sale = new int[info.num_of_models];
@@ -123,7 +114,7 @@ namespace DS
 
 			std::memcpy(models_rank,info.models_rank, sizeof(int)*num_of_models);
 			std::memcpy(models_sale,info.models_sale, sizeof(int)*num_of_models);
-			std::memcpy(models_unrank_ptr,info.models_unrank_ptr, sizeof(size_t)*num_of_models);
+			std::memcpy(models_unrank_ptr,info.models_unrank_ptr, sizeof(DList<RankInfo>::DListNode*)*num_of_models);
 		} 
 
 		TypeInfo& operator=(const TypeInfo& ) = default;
@@ -149,24 +140,18 @@ namespace DS
 
 	struct UnrankInfo
 	{
-		UnrankInfo(int type, DList<RankInfo>* list = nullptr) : type(type), list(list) 
-		{ 
-			if (type <= 0)
-			{
-				throw InvalidInput();
-			}
-		}
+		UnrankInfo(int type, DList<RankInfo>* list = nullptr) : type(type), list(list) 	{ 	}
 		~UnrankInfo() { delete list; }
 		UnrankInfo(const UnrankInfo& info) = default;
 		UnrankInfo& operator=(const UnrankInfo& ) = default;
 
-		bool operator==(const TypeInfo& info) {
+		bool operator==(const UnrankInfo& info) {
 			return (info.type == type);
 		}
-		bool operator<(const TypeInfo& info){
+		bool operator<(const UnrankInfo& info){
 			return (type < info.type);
 		}
-		bool operator>(const TypeInfo& info){
+		bool operator>(const UnrankInfo& info){
             return (!(*this < info && *this == info));
         }
 		

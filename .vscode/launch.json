@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}",
-			"args": [],
+			"args": ["<", "~/ds/in.txt"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],

@@ -75,6 +75,12 @@ namespace DS
 		*/
 		T* getFirst() const;
 		T* getLast() const;
+		
+		/* iterate in O(1) for every func */
+		T* AVLBegin();
+		T* AVLNext();
+		T* AVLEnd();
+		
 		/*
 		* Travel inorder, and put the first i nodes in arr
 		* Complexity = O(i)
@@ -116,8 +122,6 @@ namespace DS
 		AvlNode* RightMostNode(AvlNode* node);
 		AvlNode* LeftMostNode(AvlNode* node);
 		AvlNode* RemoveRec(AvlNode* node, T* data);
-		void AVLBegin();
-		void AVLNext();
 		AvlNode* GetNode(T* data);
 		AvlNode* AVLNext(AvlNode* node);
 		T* GetNextData(AvlNode* node);
@@ -537,9 +541,10 @@ namespace DS
 	}
 /*******************************************************************************/
 	template <typename T>
-	void AVL<T>::AVLBegin()
+	T* AVL<T>::AVLBegin()
 	{
 		m_iter = m_start;
+		return m_iter->data;
 	}
 	
 	template <typename T>
@@ -567,9 +572,16 @@ namespace DS
 		return node->parent;
 	}
 	template <typename T>
-	void AVL<T>::AVLNext()
+	T* AVL<T>::AVLNext()
 	{
 		m_iter = AVLNext(m_iter);
+		return m_iter->data;
+	}
+
+	template <typename T>
+	T* AVL<T>::AVLEnd()
+	{
+		return m_end->data;
 	}
 
 	template <typename T>
@@ -577,7 +589,7 @@ namespace DS
 	{
 		size_t counter = 0;
 		
-		for (AVLBegin(); m_iter != m_end && counter < i; AVLNext())
+		for (m_iter = m_start; m_iter != m_end && counter < i; m_iter = AVLNext(m_iter))
 		{
 			arr[counter++] = m_iter->data;
 		}

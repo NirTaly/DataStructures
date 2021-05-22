@@ -37,7 +37,7 @@ typedef enum {
     QUIT_CMD = 7
 } commandType;
 
-static const int numActions = 10;
+static const int numActions = 8;
 static const char *commandStr[] = {
         "Init",
         "AddCarType",
@@ -83,7 +83,7 @@ static bool isInit = false;
 /* main                                                                    */
 /***************************************************************************/
 
-int main(int argc, const char**argv) {
+int main() {
 
     char buffer[MAX_STRING_INPUT_SIZE];
 
@@ -183,6 +183,7 @@ static errorType parser(const char* const command) {
 }
 
 static errorType OnInit(void** DS, const char* const command) {
+    (void)command;
     if (isInit) {
         printf("init was already called.\n");
         return (error_free);
@@ -272,6 +273,7 @@ static errorType OnGetBestSellerModelByType(void* DS, const char* const command)
 }
 
 static errorType OnGetWorstModels(void* DS, const char* const command) {
+    (void)command;
     int numOfModels;
     int *types = NULL, *models = NULL;
 	StatusType res = SUCCESS;
@@ -296,8 +298,8 @@ static errorType OnGetWorstModels(void* DS, const char* const command) {
         return error_free;
     }
 
-    printf("%s: %s\n", commandStr[GETWORSTMODELS_CMD], ReturnValToStr(res));
-
+    
+    printf("--Start of worst models--\n");
 	printf("CarType\t|\tModel\n");
 
     for (int i = 0; i < numOfModels; i++)
@@ -305,7 +307,8 @@ static errorType OnGetWorstModels(void* DS, const char* const command) {
         printf("%d\t|\t%d\n", types[i], models[i]);
     }
 
-    printf("--End of worst types--\n");
+    printf("--End of worst models--\n");
+	printf("%s: %s\n", commandStr[GETWORSTMODELS_CMD], ReturnValToStr(res));
 
 	if (types != NULL) free(types);
 	if (models != NULL) free(models);
@@ -314,6 +317,7 @@ static errorType OnGetWorstModels(void* DS, const char* const command) {
 }
 
 static errorType OnQuit(void** DS, const char* const command) {
+    (void)command;
     Quit(DS);
     if (*DS != NULL) {
         printf("quit failed.\n");
