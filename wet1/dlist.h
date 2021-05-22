@@ -135,7 +135,7 @@ namespace DS
         DListNode* new_node = nullptr;
         if(!curr)
         {
-            new_node = new DListNode(data, m_end.m_prev, m_end);
+            new_node = new DListNode(data, m_end.m_prev, &m_end);
 			m_end.m_prev->m_next = new_node;
             m_end.m_prev = new_node;
         }

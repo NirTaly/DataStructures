@@ -49,10 +49,12 @@ namespace DS
 
 		for (int model = 0; model < avlnode_info->num_of_models; model++)
 		{
-			if (avlnode_info->models_unrank_ptr == nullptr)
+			if (avlnode_info->models_unrank_ptr[model] == nullptr)
 			{
-				RankInfo model_info(typeID,model);
+				RankInfo model_info(typeID,model, avlnode_info->models_rank[model]);
 				ranked.remove(&model_info);
+
+				avlnode_info->models_unrank_ptr[model] = nullptr;
 			}
 		}
 		
@@ -65,7 +67,7 @@ namespace DS
 
 		SaleInfo type_best_seller(typeID,avlnode_info->best_model.getModel());
 		best_sales.remove(&type_best_seller);
-	}	
+	}
 
 	void CarDealershipManager::SellCar(int typeID, int modelID)
 	{
@@ -94,11 +96,12 @@ namespace DS
 			if (dlist->isEmpty())
 			{
 				unranked.remove(&type_info);
+				delete dlist;
 			}
 		}
 		else
 		{
-			RankInfo old_rank(typeID,modelID);
+			RankInfo old_rank(typeID,modelID,avlnode_info->models_rank[modelID]-10);
 			ranked.remove(&old_rank);
 		}
 
@@ -128,10 +131,10 @@ namespace DS
 			throw Failure();
 		}
 
-		avlnode_info->models_rank[modelID] = avlnode_info->models_rank[modelID] - 100/t;
-
-		RankInfo old_rank(typeID,modelID);
+		RankInfo old_rank(typeID,modelID,avlnode_info->models_rank[modelID]);
 		ranked.remove(&old_rank);
+	
+		avlnode_info->models_rank[modelID] = avlnode_info->models_rank[modelID] - 100/t;
 
 		RankInfo new_rank(typeID,modelID,avlnode_info->models_rank[modelID]);
 		ranked.insert(&new_rank);
@@ -163,17 +166,15 @@ namespace DS
 			throw InvalidInput();
 		}
 		
-		RankInfo** rank_arr = new RankInfo*[numOfModels];
 		int counter = 0;
-
-		for (RankInfo* runner = ranked.AVLBegin(); 
-			counter < numOfModels && runner != ranked.AVLEnd(); 
-			runner = ranked.AVLNext())
+		
+		RankInfo* runner = ranked.AVLBegin(); 
+		for ( ; counter < numOfModels && runner != nullptr; runner = ranked.AVLNext())
 		{
 			if (runner->isMin())
 			{
-				for (UnrankInfo* unranked_runner = unranked.AVLBegin(); 
-						counter < numOfModels && unranked_runner != unranked.AVLEnd(); 
+				UnrankInfo* unranked_runner = unranked.AVLBegin();
+				for ( ; counter < numOfModels && unranked_runner != nullptr; 
 						unranked_runner = unranked.AVLNext())
 				{
 					for (DList<RankInfo>::DListNode* node = unranked_runner->list->begin(); 
@@ -184,17 +185,14 @@ namespace DS
 						models[counter] = node->m_data->getModel();
 					}
 				}
-				
 			}
 			else
 			{
-				types[counter] = rank_arr[counter]->getType();
-				models[counter] = rank_arr[counter]->getModel();
+				types[counter] = runner->getType();
+				models[counter] = runner->getModel();
 				counter++;
 			}
 		}
-		
-		delete rank_arr;
 	}
 
 } // namespace DS

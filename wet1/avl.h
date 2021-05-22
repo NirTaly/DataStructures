@@ -96,7 +96,7 @@ namespace DS
 	// AVL Node Structure
 		struct AvlNode
 		{	
-			AvlNode(T* data, size_t height = 1,AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
+			AvlNode(T* data, size_t height = 1, AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
 				data(new T(*data)), height(height), left(l), right(r), parent(p) 
 			{ }
 			
@@ -575,6 +575,11 @@ namespace DS
 	T* AVL<T>::AVLNext()
 	{
 		m_iter = AVLNext(m_iter);
+		if (m_iter == nullptr)
+		{
+			return nullptr;
+		}
+		
 		return m_iter->data;
 	}
 

@@ -25,10 +25,14 @@ namespace DS
 			return (car.type == type && car.model == model);
 		}
 		bool operator<(const CarInfo& car){
-			return (type < car.type ? true : (model < car.model ? true : false));
+			if (type == car.type)
+			{
+				return model < car.model;
+			}
+			return type < car.type;
 		}
 		bool operator>(const CarInfo& car){
-            return (!(*this < car && *this == car));
+            return (!(*this < car || *this == car));
         }
 
 		int getModel() { return model; }
@@ -50,15 +54,23 @@ namespace DS
 			return (CarInfo::operator==(car));
 		}
 		bool operator<(const RankInfo& car){
-			return (CarInfo::operator<(car) && car.rank < rank );
+			if (car.rank == rank)
+			{
+				return CarInfo::operator<(car);
+			}
+			return car.rank > rank;
 		}
 		bool operator>(const RankInfo& car){
-            return (CarInfo::operator>(car) && car.rank > rank );
+			if (car.rank == rank)
+			{
+				return CarInfo::operator>(car);
+			}
+			return car.rank < rank;
         }
 
 		int getRank() { return rank; }
 
-		bool isMin() { return rank == MIN_TYPE;}
+		bool isMin() { return this->getType() == MIN_TYPE;}
 	private:
 		int rank;
 	};
@@ -73,10 +85,18 @@ namespace DS
 			return (CarInfo::operator==(car));
 		}
 		bool operator<(const SaleInfo& car){
-			return (car.sales > sales ? true : CarInfo::operator<(car));
+			if (car.sales == sales)
+			{
+				return CarInfo::operator<(car);
+			}
+			return car.sales > sales;
 		}
 		bool operator>(const SaleInfo& car){
-			return (car.sales < sales ? true : CarInfo::operator>(car));
+			if (car.sales == sales)
+			{
+				return CarInfo::operator>(car);
+			}
+			return car.sales < sales;
         }
 
 		int getSales() { return sales; }
@@ -100,9 +120,9 @@ namespace DS
 
 		~TypeInfo()
 		{
-			delete models_rank;
-			delete models_sale;
-			delete models_unrank_ptr;
+			delete[] models_sale;
+			delete[] models_rank;
+			delete[] models_unrank_ptr;
 		}
 
 		TypeInfo(const TypeInfo& info) : type(info.type), models_sale(nullptr), models_rank(nullptr), 
@@ -126,7 +146,7 @@ namespace DS
 			return (type < info.type);
 		}
 		bool operator>(const TypeInfo& info){
-            return (!(*this < info && *this == info));
+            return (!(*this < info || *this == info));
         }
 
         int type;
@@ -141,7 +161,7 @@ namespace DS
 	struct UnrankInfo
 	{
 		UnrankInfo(int type, DList<RankInfo>* list = nullptr) : type(type), list(list) 	{ 	}
-		~UnrankInfo() { delete list; }
+		~UnrankInfo() = default;
 		UnrankInfo(const UnrankInfo& info) = default;
 		UnrankInfo& operator=(const UnrankInfo& ) = default;
 
@@ -152,7 +172,7 @@ namespace DS
 			return (type < info.type);
 		}
 		bool operator>(const UnrankInfo& info){
-            return (!(*this < info && *this == info));
+            return (!(*this < info || *this == info));
         }
 		
 		int type;

@@ -6,7 +6,6 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
-                "-DNDEBUG",
                 "-Wall",
                 "-Wextra",
                 "${fileDirname}/*.cpp",
