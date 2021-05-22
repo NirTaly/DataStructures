@@ -14,7 +14,9 @@ namespace DS
 	class AVLNextNotFound : public Exception {};
 	
 	class AVLDuplicate : public Exception {};
-		
+	
+	class InvalidInput : public Exception {};
+	
 } // namespace DS
 
 #endif     /* __EXCEPTIONS_H__ */

@@ -4,50 +4,50 @@ namespace DS
 {
 	CarDealershipManager::CarDealershipManager() : top_seller(BAD_TYPE)
 	{ 
-		CarInfo zero_rank(MIN_TYPE, 0, 0, &unranked);
+		RankInfo zero_rank(MIN_TYPE, 0, 0);
 		ranked.insert(&zero_rank); //for init
 	}
 
-	StatusType CarDealershipManager::AddCarType(void *DS, int typeID, int numOfModels)
+	StatusType CarDealershipManager::AddCarType(int typeID, int numOfModels)
 	{
         TypeInfo new_node(typeID, numOfModels);
         type.insert(&new_node);
-        
-		DList<CarInfo> unranked_models;
+		TypeInfo* avlnode_data = type.findData(&new_node);
+
+		DList<RankInfo>* unranked_models = new DList<RankInfo>;
 		for (int model = numOfModels-1; model >= 0; model--)
 		{
-			CarInfo model_info(typeID,model);	//data irrelevent
-			unranked_models.pushBefore(&model_info);
+			RankInfo model_info(typeID,model);	//data irrelevent
+
+			avlnode_data->models_unrank_ptr[model] = unranked_models->pushBefore(&model_info);
 		}
+
+		UnrankInfo info(typeID, unranked_models);
+		unranked.insert(&info);
 		
-		if (unranked.isEmpty())
+		avlnode_data->best_model = SaleInfo(typeID);
+		if(top_seller.isBad() || avlnode_data->best_model > top_seller)
 		{
-			DList<DList<CarInfo>>::DListNode* node = unranked.pushAfter(&unranked_models);
-
+			top_seller = avlnode_data->best_model;
 		}
-		else
-		{
-			unranked_models.pushAfter(type.findNext(&new_node)->models_unrank_ptr);
-		}
-        
 	}
 		
-	StatusType CarDealershipManager::SellCar(void *DS, int typeID, int modelID)
+	StatusType CarDealershipManager::SellCar(int typeID, int modelID)
 	{
 
 	}
 
-	StatusType CarDealershipManager::MakeComplaint(void *DS, int typeID, int modelID, int t)
+	StatusType CarDealershipManager::MakeComplaint(int typeID, int modelID, int t)
 	{
 
 	}
 
-	StatusType CarDealershipManager::GetBestSellerModelByType(void *DS, int typeID, int * modelID)
+	StatusType CarDealershipManager::GetBestSellerModelByType(int typeID, int * modelID)
 	{
 
 	}
 
-	StatusType CarDealershipManager::GetWorstModels(void *DS, int numOfModels, int *types, int *models)
+	StatusType CarDealershipManager::GetWorstModels(int numOfModels, int *types, int *models)
 	{
 
 	}

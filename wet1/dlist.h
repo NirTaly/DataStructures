@@ -52,8 +52,10 @@ namespace DS
         void pop(void);
         void remove(DListNode* node);
 
+        // if curr == nullptr -> insert to the end of the list
         DListNode* pushAfter(T* const data, DListNode* curr = nullptr);
-		DListNode* pushBefore(T* const data, DListNode* curr = nullptr);
+		// if curr == nullptr -> insert to the start of the list
+        DListNode* pushBefore(T* const data, DListNode* curr = nullptr);
 
         size_t size(void) const;
 
@@ -125,15 +127,16 @@ namespace DS
         return (counter);
     }
 
+
     template <class T>
 	typename DList<T>::DListNode* DList<T>::pushAfter(T* const data, DListNode* curr)
     {
         DListNode* new_node = nullptr;
         if(!curr)
         {
-            new_node = new DListNode(data, &m_start, m_start.m_next);
-			m_start.m_next->m_prev = new_node;
-            m_start.m_next = new_node;
+            new_node = new DListNode(data, m_end.m_prev, m_end);
+			m_end.m_prev->m_next = new_node;
+            m_end.m_prev = new_node;
         }
         else
         {
