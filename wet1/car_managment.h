@@ -16,8 +16,13 @@ namespace DS
     class CarInfo
     {
 	public:
-		CarInfo(int type, int model = 0) : 
-			type(type), model(model) { }
+		CarInfo(int type, int model = 0) : type(type), model(model) 
+		{ 
+			if (type <= 0 || model < 0)
+			{
+				throw InvalidInput();
+			}
+		}
 		virtual ~CarInfo() = 0;
 		CarInfo(const CarInfo& ) = default;
 		CarInfo& operator=(const CarInfo& ) = default;
@@ -32,6 +37,9 @@ namespace DS
             return (!(*this < car && *this == car));
         }
 
+		int getModel() { return model; }
+		int getType() { return type; }
+
 	private:
         int type;
         int model;
@@ -44,7 +52,7 @@ namespace DS
 		~RankInfo() = default;
 
 		bool operator==(const RankInfo& car) {
-			return (CarInfo::operator==(car) && car.rank == rank );
+			return (CarInfo::operator==(car));
 		}
 		bool operator<(const RankInfo& car){
 			return (CarInfo::operator<(car) && car.rank < rank );
@@ -52,6 +60,8 @@ namespace DS
 		bool operator>(const RankInfo& car){
             return (CarInfo::operator>(car) && car.rank > rank );
         }
+
+		int getRank() { return rank; }
 
 		bool isMin() { return rank == MIN_TYPE;}
 	private:
@@ -65,7 +75,7 @@ namespace DS
 		~SaleInfo() = default;
 
 		bool operator==(const SaleInfo& car) {
-			return (CarInfo::operator==(car) && car.sales == sales );
+			return (CarInfo::operator==(car));
 		}
 		bool operator<(const SaleInfo& car){
 			return (car.sales > sales ? true : CarInfo::operator<(car));
@@ -73,6 +83,8 @@ namespace DS
 		bool operator>(const SaleInfo& car){
 			return (car.sales < sales ? true : CarInfo::operator>(car));
         }
+
+		int getSales() { return sales; }
 
 		bool isBad() { return sales == BAD_TYPE;}
 	private:
@@ -137,7 +149,13 @@ namespace DS
 
 	struct UnrankInfo
 	{
-		UnrankInfo(int type, DList<RankInfo>* list) : type(type), list(list) { }
+		UnrankInfo(int type, DList<RankInfo>* list = nullptr) : type(type), list(list) 
+		{ 
+			if (type <= 0)
+			{
+				throw InvalidInput();
+			}
+		}
 		~UnrankInfo() { delete list; }
 		UnrankInfo(const UnrankInfo& info) = default;
 		UnrankInfo& operator=(const UnrankInfo& ) = default;
@@ -163,15 +181,17 @@ namespace DS
 		CarDealershipManager(const CarDealershipManager&) = delete;
 		CarDealershipManager& operator=(const CarDealershipManager& ) = delete;
 
-		StatusType AddCarType(int typeID, int numOfModels);
+		void AddCarType(int typeID, int numOfModels);					// AVLDuplicate == Failure
 		
-		StatusType SellCar(int typeID, int modelID);
+		void RemoveCarType(int typeID);									// AvlNotFound == Failure
+		
+		void SellCar(int typeID, int modelID);							// AvlNotFound == Failure
 
-		StatusType MakeComplaint(int typeID, int modelID, int t);
+		void MakeComplaint(int typeID, int modelID, int t); 			// AvlNotFound == Failure
 
-		StatusType GetBestSellerModelByType(int typeID, int * modelID);
+		void GetBestSellerModelByType(int typeID, int * modelID);
 
-		StatusType GetWorstModels(int numOfModels, int *types, int *models);
+		void GetWorstModels(int numOfModels, int *types, int *models);
 
 		/*******************************/
         AVL<SaleInfo> best_sales;

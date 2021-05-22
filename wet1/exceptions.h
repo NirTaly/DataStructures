@@ -17,6 +17,8 @@ namespace DS
 	
 	class InvalidInput : public Exception {};
 	
+	class Failure : public Exception {};
+	
 } // namespace DS
 
 #endif     /* __EXCEPTIONS_H__ */

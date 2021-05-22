@@ -79,7 +79,7 @@ namespace DS
 		* Travel inorder, and put the first i nodes in arr
 		* Complexity = O(i)
 		 */
-		void inorder(size_t i, T* arr);
+		void inorder(size_t i, T** arr);
 		/*
 		* Prints the AVL tree Inorder
 		* Complexity = O(n)
@@ -573,20 +573,19 @@ namespace DS
 	}
 
 	template <typename T>
-	void AVL<T>::inorder(size_t i, T* arr)
+	void AVL<T>::inorder(size_t i, T** arr)
 	{
 		size_t counter = 0;
 		
-		for (AVLBegin(); m_iter != m_end && counter < i; AVLNext(), counter++)
+		for (AVLBegin(); m_iter != m_end && counter < i; AVLNext())
 		{
-			arr[counter] = *(m_iter->data);
+			arr[counter++] = m_iter->data;
 		}
 
-		if (counter < i && m_iter == m_end)
+		if (m_iter == m_end && i > counter)
 		{
-			arr[counter] = *(m_iter->data);
+			throw Failure();
 		}
-		
 	}
 
 	template <typename T>
