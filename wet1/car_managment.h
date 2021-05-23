@@ -87,14 +87,14 @@ namespace DS
 		bool operator<(const SaleInfo& car){
 			if (car.sales == sales)
 			{
-				return CarInfo::operator<(car);
+				return CarInfo::operator>(car);//change operator
 			}
 			return car.sales > sales;
 		}
 		bool operator>(const SaleInfo& car){
 			if (car.sales == sales)
 			{
-				return CarInfo::operator>(car);
+				return CarInfo::operator<(car);//change operator
 			}
 			return car.sales < sales;
         }
@@ -251,7 +251,7 @@ namespace DS
         AVL<UnrankInfo> unranked;
         AVL<RankInfo> ranked;
         AVL<TypeInfo> type;
-        SaleInfo top_seller;
+		int total_models;
 	};
 }
 

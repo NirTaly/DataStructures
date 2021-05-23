@@ -4,7 +4,7 @@ namespace DS
 {
 	CarInfo::~CarInfo() { }
 
-	CarDealershipManager::CarDealershipManager() : top_seller(BAD_TYPE)
+	CarDealershipManager::CarDealershipManager() : total_models(0)
 	{ 
 		RankInfo zero_rank(MIN_TYPE, 0, 0);
 		ranked.insert(&zero_rank); //for init
@@ -17,24 +17,26 @@ namespace DS
 			throw InvalidInput();
 		}
 
+		total_models += numOfModels;
+
         TypeInfo new_node(typeID, numOfModels);
         type.insert(&new_node);
-		TypeInfo* avlnode_data = type.findData(&new_node);
+		TypeInfo* avlnode_info = type.findData(&new_node);
 
 		DList<RankInfo>* unranked_models = new DList<RankInfo>;
 		for (int model = numOfModels-1; model >= 0; model--)
 		{
 			RankInfo model_info(typeID,model);	//data irrelevent
 
-			avlnode_data->models_unrank_ptr[model] = unranked_models->pushBefore(&model_info);
+			avlnode_info->models_unrank_ptr[model] = unranked_models->pushBefore(&model_info);
 		}
 
 		UnrankInfo info(typeID, unranked_models);
 		unranked.insert(&info);
 		
-		avlnode_data->best_model = SaleInfo(typeID);
+		avlnode_info->best_model = SaleInfo(typeID);
 		
-		best_sales.insert(&(avlnode_data->best_model));
+		best_sales.insert(&(avlnode_info->best_model));
 	}
 
 	void CarDealershipManager::RemoveCarType(int typeID)
@@ -65,8 +67,9 @@ namespace DS
 		}
 		catch(const Exception& ) {	}
 
-		SaleInfo type_best_seller(typeID,avlnode_info->best_model.getModel());
-		best_sales.remove(&type_best_seller);
+		best_sales.remove(&(avlnode_info->best_model));
+
+		total_models -= avlnode_info->num_of_models;
 	}
 
 	void CarDealershipManager::SellCar(int typeID, int modelID)
@@ -160,36 +163,106 @@ namespace DS
 
 	void CarDealershipManager::GetWorstModels(int numOfModels, int *types, int *models)
 	{
-		if (numOfModels < 0)
+		if (numOfModels <= 0 )
 		{
 			throw InvalidInput();
 		}
+		if (numOfModels > total_models)
+		{
+			throw Failure();
+		}
 		
 		int counter = 0;
-		
+		bool unranked_done = false;
+
 		RankInfo* runner = ranked.AVLBegin(); 
-		for ( ; counter < numOfModels && runner != nullptr; runner = ranked.AVLNext())
+		UnrankInfo* unranked_runner = unranked.AVLBegin();
+		DList<RankInfo>::DListNode* node = unranked_runner->list->begin();
+		while (counter < numOfModels && runner)
 		{
-			if (runner->isMin())
-			{
-				UnrankInfo* unranked_runner = unranked.AVLBegin();
-				for ( ; counter < numOfModels && unranked_runner != nullptr; 
-						unranked_runner = unranked.AVLNext())
-				{
-					for (DList<RankInfo>::DListNode* node = unranked_runner->list->begin(); 
-							counter < numOfModels && node != unranked_runner->list->end();
-							node = node->m_next, counter++)
-					{
-						types[counter] = node->m_data->getType();
-						models[counter] = node->m_data->getModel();
-					}
-				}
-			}
-			else
+			while (runner && runner->getRank() < 0 && counter < numOfModels)
 			{
 				types[counter] = runner->getType();
 				models[counter] = runner->getModel();
 				counter++;
+				runner = ranked.AVLNext();
+			}
+			
+			if (runner && runner->isMin())
+			{
+				runner = ranked.AVLNext();
+			}
+
+			if (runner && runner->getRank() == 0 && counter < numOfModels)
+			{
+				if (unranked_done == false)
+				{
+					if (node == unranked_runner->list->end())
+					{
+						unranked_runner = unranked.AVLNext();
+						if (unranked_runner)
+						{
+							node = unranked_runner->list->begin();
+						}
+						else
+						{
+							unranked_done = true;
+						}
+					}
+					
+					if (unranked_done == false && node->m_data < runner)
+					{
+						types[counter] = node->m_data->getType();
+						models[counter] = node->m_data->getModel();
+						counter++;
+						node = node->m_next;
+					}
+					else
+					{
+						types[counter] = runner->getType();
+						models[counter] = runner->getModel();
+						counter++;
+						runner = ranked.AVLNext();
+					}
+				}
+				else
+				{
+					types[counter] = runner->getType();
+					models[counter] = runner->getModel();
+					counter++;
+					runner = ranked.AVLNext();
+				}
+			}
+			else if(!unranked_done && counter < numOfModels)
+			{
+				if (node == unranked_runner->list->end())
+				{
+					unranked_runner = unranked.AVLNext();
+					if (unranked_runner)
+					{
+						node = unranked_runner->list->begin();
+					}
+					else
+					{
+						unranked_done = true;
+						continue;
+					}
+				}
+				
+				types[counter] = node->m_data->getType();
+				models[counter] = node->m_data->getModel();
+				counter++;
+				node = node->m_next;
+			}
+			else
+			{
+				if (runner && counter < numOfModels)
+				{
+					types[counter] = runner->getType();
+					models[counter] = runner->getModel();
+					counter++;
+					runner = ranked.AVLNext();
+				}
 			}
 		}
 	}
