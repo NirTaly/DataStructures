@@ -6,8 +6,8 @@ namespace DS
 
 	CarDealershipManager::CarDealershipManager() : total_models(0)
 	{ 
-		RankInfo zero_rank(MIN_TYPE, 0, 0);
-		ranked.insert(&zero_rank); //for init
+		// RankInfo zero_rank(MIN_TYPE, 0, 0);
+		// ranked.insert(&zero_rank); //for init
 	}
 
 	void CarDealershipManager::AddCarType(int typeID, int numOfModels)
@@ -16,8 +16,6 @@ namespace DS
 		{
 			throw InvalidInput();
 		}
-
-		total_models += numOfModels;
 
         TypeInfo new_node(typeID, numOfModels);
         type.insert(&new_node);
@@ -37,6 +35,7 @@ namespace DS
 		avlnode_info->best_model = SaleInfo(typeID);
 		
 		best_sales.insert(&(avlnode_info->best_model));
+		total_models += numOfModels;
 	}
 
 	void CarDealershipManager::RemoveCarType(int typeID)
@@ -173,68 +172,32 @@ namespace DS
 		}
 		
 		int counter = 0;
-		bool unranked_done = false;
 
-		RankInfo* runner = ranked.AVLBegin(); 
-		UnrankInfo* unranked_runner = unranked.AVLBegin();
-		DList<RankInfo>::DListNode* node = unranked_runner->list->begin();
-		while (counter < numOfModels && runner)
+		RankInfo* runner = (ranked.isEmpty() ? nullptr : ranked.AVLBegin()); 
+		UnrankInfo* unranked_runner = (unranked.isEmpty() ? nullptr : unranked.AVLBegin());
+		DList<RankInfo>::DListNode* node = nullptr;
+		if (unranked_runner)
 		{
-			while (runner && runner->getRank() < 0 && counter < numOfModels)
+			node = unranked_runner->list->begin();
+		}
+		
+		bool unranked_done = (node == nullptr);
+		
+		while (runner && runner->getRank() < 0 && counter < numOfModels)					// ranked < 0
+		{
+			types[counter] = runner->getType();
+			models[counter] = runner->getModel();
+			counter++;
+			runner = ranked.AVLNext();
+		}
+		while (runner && !unranked_done && runner->getRank() == 0 && counter < numOfModels)	// ranked == 0 && has unranked
+		{	
+			if (*(node->m_data) < *runner)
 			{
-				types[counter] = runner->getType();
-				models[counter] = runner->getModel();
-				counter++;
-				runner = ranked.AVLNext();
-			}
-			
-			if (runner && runner->isMin())
-			{
-				runner = ranked.AVLNext();
-			}
-
-			if (runner && runner->getRank() == 0 && counter < numOfModels)
-			{
-				if (unranked_done == false)
-				{
-					if (node == unranked_runner->list->end())
-					{
-						unranked_runner = unranked.AVLNext();
-						if (unranked_runner)
-						{
-							node = unranked_runner->list->begin();
-						}
-						else
-						{
-							unranked_done = true;
-						}
-					}
-					
-					if (unranked_done == false && node->m_data < runner)
-					{
-						types[counter] = node->m_data->getType();
-						models[counter] = node->m_data->getModel();
-						counter++;
-						node = node->m_next;
-					}
-					else
-					{
-						types[counter] = runner->getType();
-						models[counter] = runner->getModel();
-						counter++;
-						runner = ranked.AVLNext();
-					}
-				}
-				else
-				{
-					types[counter] = runner->getType();
-					models[counter] = runner->getModel();
-					counter++;
-					runner = ranked.AVLNext();
-				}
-			}
-			else if(!unranked_done && counter < numOfModels)
-			{
+				types[counter] = node->m_data->getType();
+				models[counter] = node->m_data->getModel();
+				
+				node = node->m_next;
 				if (node == unranked_runner->list->end())
 				{
 					unranked_runner = unranked.AVLNext();
@@ -245,26 +208,152 @@ namespace DS
 					else
 					{
 						unranked_done = true;
-						continue;
 					}
 				}
-				
-				types[counter] = node->m_data->getType();
-				models[counter] = node->m_data->getModel();
-				counter++;
-				node = node->m_next;
 			}
 			else
 			{
-				if (runner && counter < numOfModels)
+				types[counter] = runner->getType();
+				models[counter] = runner->getModel();
+				runner = ranked.AVLNext();
+			}
+
+			counter++;
+		}
+		while (runner && !unranked_done && runner->getRank() > 0 && counter < numOfModels)	// ranked > 0 && has unranked
+		{
+			types[counter] = node->m_data->getType();
+			models[counter] = node->m_data->getModel();
+			counter++;
+			node = node->m_next;
+			if (node == unranked_runner->list->end())
+			{
+				unranked_runner = unranked.AVLNext();
+				if (unranked_runner)
 				{
-					types[counter] = runner->getType();
-					models[counter] = runner->getModel();
-					counter++;
-					runner = ranked.AVLNext();
+					node = unranked_runner->list->begin();
+				}
+				else
+				{
+					unranked_done = true;
 				}
 			}
 		}
+		while (!unranked_done && counter < numOfModels)										// no ranked
+		{
+			types[counter] = node->m_data->getType();
+			models[counter] = node->m_data->getModel();
+			counter++;
+			
+			node = node->m_next;
+			if (node == unranked_runner->list->end())
+			{
+				unranked_runner = unranked.AVLNext();
+				if (unranked_runner)
+				{
+					node = unranked_runner->list->begin();
+				}
+				else
+				{
+					unranked_done = true;
+				}
+			}
+		}
+		while (unranked_done && runner && counter < numOfModels)							// no unranked
+		{
+			types[counter] = runner->getType();
+			models[counter] = runner->getModel();
+			counter++;
+			
+			runner = ranked.AVLNext();
+		}
+		// while (counter < numOfModels && runner)
+		// {
+		// 	while (runner && runner->getRank() < 0 && counter < numOfModels)
+		// 	{
+		// 		types[counter] = runner->getType();
+		// 		models[counter] = runner->getModel();
+		// 		counter++;
+		// 		runner = ranked.AVLNext();
+		// 	}
+			
+		// 	if (runner && runner->isMin())
+		// 	{
+		// 		runner = ranked.AVLNext();
+		// 	}
+
+		// 	if (runner && runner->getRank() == 0 && counter < numOfModels)
+		// 	{
+		// 		if (unranked_done == false)
+		// 		{
+		// 			if (node == unranked_runner->list->end())
+		// 			{
+		// 				unranked_runner = unranked.AVLNext();
+		// 				if (unranked_runner)
+		// 				{
+		// 					node = unranked_runner->list->begin();
+		// 				}
+		// 				else
+		// 				{
+		// 					unranked_done = true;
+		// 				}
+		// 			}
+					
+		// 			if (unranked_done == false && *(node->m_data) < *runner)
+		// 			{
+		// 				types[counter] = node->m_data->getType();
+		// 				models[counter] = node->m_data->getModel();
+		// 				counter++;
+		// 				node = node->m_next;
+		// 			}
+		// 			else
+		// 			{
+		// 				types[counter] = runner->getType();
+		// 				models[counter] = runner->getModel();
+		// 				counter++;
+		// 				runner = ranked.AVLNext();
+		// 			}
+		// 		}
+		// 		else
+		// 		{
+		// 			types[counter] = runner->getType();
+		// 			models[counter] = runner->getModel();
+		// 			counter++;
+		// 			runner = ranked.AVLNext();
+		// 		}
+		// 	}
+		// 	else if(!unranked_done && counter < numOfModels)
+		// 	{
+		// 		if (node == unranked_runner->list->end())
+		// 		{
+		// 			unranked_runner = unranked.AVLNext();
+		// 			if (unranked_runner)
+		// 			{
+		// 				node = unranked_runner->list->begin();
+		// 			}
+		// 			else
+		// 			{
+		// 				unranked_done = true;
+		// 				continue;
+		// 			}
+		// 		}
+				
+		// 		types[counter] = node->m_data->getType();
+		// 		models[counter] = node->m_data->getModel();
+		// 		counter++;
+		// 		node = node->m_next;
+		// 	}
+		// 	else
+		// 	{
+		// 		if (runner && counter < numOfModels)
+		// 		{
+		// 			types[counter] = runner->getType();
+		// 			models[counter] = runner->getModel();
+		// 			counter++;
+		// 			runner = ranked.AVLNext();
+		// 		}
+		// 	}
+		// }
 	}
 
 } // namespace DS
