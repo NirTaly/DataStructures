@@ -9,6 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}",
+			// "args": ["<", "../tests/rand_tests/in/3.txt"],
 			"args": ["<", "../in.txt"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",

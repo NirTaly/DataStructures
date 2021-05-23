@@ -4,11 +4,7 @@ namespace DS
 {
 	CarInfo::~CarInfo() { }
 
-	CarDealershipManager::CarDealershipManager() : total_models(0)
-	{ 
-		// RankInfo zero_rank(MIN_TYPE, 0, 0);
-		// ranked.insert(&zero_rank); //for init
-	}
+	CarDealershipManager::CarDealershipManager() : total_models(0)	{ 	}
 
 	void CarDealershipManager::AddCarType(int typeID, int numOfModels)
 	{
@@ -19,12 +15,13 @@ namespace DS
 
         TypeInfo new_node(typeID, numOfModels);
         type.insert(&new_node);
+	
 		TypeInfo* avlnode_info = type.findData(&new_node);
 
 		DList<RankInfo>* unranked_models = new DList<RankInfo>;
 		for (int model = numOfModels-1; model >= 0; model--)
 		{
-			RankInfo model_info(typeID,model);	//data irrelevent
+			RankInfo model_info(typeID,model);
 
 			avlnode_info->models_unrank_ptr[model] = unranked_models->pushBefore(&model_info);
 		}
@@ -65,10 +62,12 @@ namespace DS
 			unranked.remove(&unranked_info);
 		}
 		catch(const Exception& ) {	}
-
+		
 		best_sales.remove(&(avlnode_info->best_model));
-
+		
 		total_models -= avlnode_info->num_of_models;
+		
+		type.remove(avlnode_info);
 	}
 
 	void CarDealershipManager::SellCar(int typeID, int modelID)
@@ -87,7 +86,7 @@ namespace DS
 
 		avlnode_info->models_sale[modelID]++;
 		avlnode_info->models_rank[modelID] += 10;
-		if (avlnode_info->models_unrank_ptr[modelID] != nullptr)	//unranked model
+		if (avlnode_info->models_unrank_ptr[modelID] != nullptr)							//unranked model
 		{
 			UnrankInfo type_info(typeID);
 			SharedPtr<DList<RankInfo>> dlist = (unranked.findData(&type_info))->list;
@@ -239,7 +238,7 @@ namespace DS
 				}
 			}
 		}
-		while (!unranked_done && counter < numOfModels)										// no ranked
+		while (!unranked_done && counter < numOfModels)										// no ranked & has unranked
 		{
 			types[counter] = node->m_data->getType();
 			models[counter] = node->m_data->getModel();
@@ -264,96 +263,9 @@ namespace DS
 			types[counter] = runner->getType();
 			models[counter] = runner->getModel();
 			counter++;
-			
+
 			runner = ranked.AVLNext();
 		}
-		// while (counter < numOfModels && runner)
-		// {
-		// 	while (runner && runner->getRank() < 0 && counter < numOfModels)
-		// 	{
-		// 		types[counter] = runner->getType();
-		// 		models[counter] = runner->getModel();
-		// 		counter++;
-		// 		runner = ranked.AVLNext();
-		// 	}
-			
-		// 	if (runner && runner->isMin())
-		// 	{
-		// 		runner = ranked.AVLNext();
-		// 	}
-
-		// 	if (runner && runner->getRank() == 0 && counter < numOfModels)
-		// 	{
-		// 		if (unranked_done == false)
-		// 		{
-		// 			if (node == unranked_runner->list->end())
-		// 			{
-		// 				unranked_runner = unranked.AVLNext();
-		// 				if (unranked_runner)
-		// 				{
-		// 					node = unranked_runner->list->begin();
-		// 				}
-		// 				else
-		// 				{
-		// 					unranked_done = true;
-		// 				}
-		// 			}
-					
-		// 			if (unranked_done == false && *(node->m_data) < *runner)
-		// 			{
-		// 				types[counter] = node->m_data->getType();
-		// 				models[counter] = node->m_data->getModel();
-		// 				counter++;
-		// 				node = node->m_next;
-		// 			}
-		// 			else
-		// 			{
-		// 				types[counter] = runner->getType();
-		// 				models[counter] = runner->getModel();
-		// 				counter++;
-		// 				runner = ranked.AVLNext();
-		// 			}
-		// 		}
-		// 		else
-		// 		{
-		// 			types[counter] = runner->getType();
-		// 			models[counter] = runner->getModel();
-		// 			counter++;
-		// 			runner = ranked.AVLNext();
-		// 		}
-		// 	}
-		// 	else if(!unranked_done && counter < numOfModels)
-		// 	{
-		// 		if (node == unranked_runner->list->end())
-		// 		{
-		// 			unranked_runner = unranked.AVLNext();
-		// 			if (unranked_runner)
-		// 			{
-		// 				node = unranked_runner->list->begin();
-		// 			}
-		// 			else
-		// 			{
-		// 				unranked_done = true;
-		// 				continue;
-		// 			}
-		// 		}
-				
-		// 		types[counter] = node->m_data->getType();
-		// 		models[counter] = node->m_data->getModel();
-		// 		counter++;
-		// 		node = node->m_next;
-		// 	}
-		// 	else
-		// 	{
-		// 		if (runner && counter < numOfModels)
-		// 		{
-		// 			types[counter] = runner->getType();
-		// 			models[counter] = runner->getModel();
-		// 			counter++;
-		// 			runner = ranked.AVLNext();
-		// 		}
-		// 	}
-		// }
 	}
 
 } // namespace DS

@@ -275,6 +275,7 @@ namespace DS
 		{	 
 			m_root = new AvlNode(data);
 			m_start = m_root;
+			m_end = m_root;
 			
 			return;
 		}
