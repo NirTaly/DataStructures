@@ -1,5 +1,0 @@
-Init
-AddCarType 10 3
-RemoveCarType 10
-AddCarType 10 3
-Quit
