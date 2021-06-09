@@ -20,7 +20,7 @@ namespace DS
 		Vector& operator=(const Vector& ) = delete;
 
 		T& get(size_t i);
-		void set(size_t i, const T& other);
+		void set(size_t i, T other);
 
 		/*
 		* Push/Pop element to/from Vector 
@@ -32,6 +32,8 @@ namespace DS
 		void reserve(size_t new_capacity);
 		void doubleSize();
 
+		T& operator[](size_t i);
+		const T& operator[](size_t i) const;
 		/*      
 		* Return number of elements in Vector  
 		* Complexity = O(1)
@@ -46,7 +48,7 @@ namespace DS
 	};
 
 	template <typename T>
-	Vector<T>::Vector(size_t capacity) : array(new T[capacity]), capacity(capacity), m_size(0)
+	Vector<T>::Vector(size_t capacity) : array(new T[capacity]), m_capacity(capacity), m_size(0)
 	{	}
 	
 	template <typename T>
@@ -62,17 +64,15 @@ namespace DS
 	}
 
 	template <typename T>
-	void Vector<T>::set(size_t i, const T& other)
+	void Vector<T>::set(size_t i, T other)
 	{
-		T tmp(other);
-
-		swap(array[i], tmp);
+		array[i] = other;
 	}
 
 	template <typename T>
 	void Vector<T>::pushBack(T element)
 	{
-		if (m_size == capacity)
+		if (m_size == m_capacity)
 		{
 			doubleSize();
 		}
@@ -89,14 +89,12 @@ namespace DS
 			throw VectorEmpty();
 		}
 
-		else if (4*m_size < capacity)
+		else if (4*m_size < m_capacity)
 		{
-			reserve(capacity / 2);
+			reserve(m_capacity / 2);
 		}
 
 		m_size--;
-
-		return (0);
 	}
 
 	template <typename T>
@@ -108,7 +106,7 @@ namespace DS
 		}
 
 		T* new_array = new T[new_capacity];
-		memcpy(new_array, array, capacity * sizeof(T));
+		memcpy(new_array, array, m_capacity * sizeof(T));
 		delete[] array;
 		array = new_array;
 	}
@@ -116,9 +114,21 @@ namespace DS
 	template <typename T>
 	void Vector<T>::doubleSize()
 	{
-		reserve(2*capacity);
+		reserve(2*m_capacity);
 	}
 	
+	template <typename T>
+	T& Vector<T>::operator[](size_t i)
+	{
+		return array[i];
+	}
+	
+	template <typename T>
+	const T& Vector<T>::operator[](size_t i) const
+	{
+		return array[i];
+	}
+
 	template <typename T>
 	size_t Vector<T>::size() const
 	{

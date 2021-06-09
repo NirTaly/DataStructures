@@ -30,7 +30,6 @@ namespace DS
 	private:
 		Vector<int> parents;
 		Vector<int> sizes;
-		Vector<int> heads;
 		Vector<SharedPtr<T>> data;
 
 		int findRec(int set);
@@ -42,10 +41,11 @@ namespace DS
 	template <typename T>
 	void UF<T>::makeset(int set)
 	{
+		(void)set;
+
 		parents.pushBack(EMPTY);
-		size.pushBack(1);
-		data.pushBack();
-		heads.pushBack(EMPTY)
+		sizes.pushBack(1);
+		data.pushBack(nullptr);
 	}
 
 /*******************************************************************************/
@@ -54,7 +54,7 @@ namespace DS
 	template <typename T>
 	SharedPtr<T> UF<T>::find(int set)
     {
-        return data[findRec(set)];       
+        return data.get(findRec(set));
     }
 
     template <typename T>
@@ -64,7 +64,7 @@ namespace DS
             return set;
 
         int master = findRec(parents[set]);
-        parents[set] = master;        
+        parents[master];
         
         return master;   
     }
@@ -81,9 +81,11 @@ namespace DS
 		int max_parent = findRec(max_set);
 
 		parents[min_parent] = max_parent;
+		
 		sizes[max_parent] += sizes[min_parent];
 		
-		data[max_parent] += data[min_parent]; // operator += new struct
+		*(data[max_parent]) += *(data[min_parent]);	// merge trees
+		
 		data[min_parent] = nullptr;
 	}
 }

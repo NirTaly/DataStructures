@@ -87,6 +87,8 @@ namespace DS
 			{
 				return getType() < car.getType();
 			}
+
+			return car.getSales() > getSales();
 		}
 		bool operator>(const SaleInfo& car) const{
             return (!(*this < car || *this == car));
@@ -107,9 +109,9 @@ namespace DS
 			int sales_size1 = salesAVL.size();
 			int sales_size2 = other.salesAVL.size();
 
-			SaleInfo sales_arr1[sales_size1];
-			SaleInfo sales_arr2[sales_size2];
-			SaleInfo merged_sales_arr[sales_size1 + sales_size2];
+			SaleInfo* sales_arr1 = new SaleInfo[sales_size1];
+			SaleInfo* sales_arr2 = new SaleInfo[sales_size2] ;
+			SaleInfo* merged_sales_arr =  new SaleInfo[sales_size1 + sales_size2];
 
 			salesAVL.inorder(sales_size1, sales_arr1);
 			other.salesAVL.inorder(sales_size2, sales_arr2);
@@ -118,14 +120,18 @@ namespace DS
 
 			salesAVL.buildFromArray(merged_sales_arr, sales_size1 + sales_size2);
 			
+			delete[] sales_arr1;
+			delete[] sales_arr2;
+			delete[] merged_sales_arr;
+			
 			// TypeAVL
 
 			int type_size1 = typeAVL.size();
 			int type_size2 = other.typeAVL.size();
 
-			TypeInfo type_arr1[type_size1];
-			TypeInfo type_arr2[type_size2];
-			TypeInfo merged_type_arr[type_size1 + type_size2];
+			TypeInfo* type_arr1 = new TypeInfo[type_size1];
+			TypeInfo* type_arr2 = new TypeInfo[type_size2];
+			TypeInfo* merged_type_arr = new TypeInfo[type_size1 + type_size2];
 
 			typeAVL.inorder(type_size1, type_arr1);
 			other.typeAVL.inorder(type_size2, type_arr2);
@@ -134,6 +140,10 @@ namespace DS
 
 			typeAVL.buildFromArray(merged_type_arr, type_size1 + type_size2);
 			
+			delete[] type_arr1;
+			delete[] type_arr2;
+			delete[] merged_type_arr;
+
 			return *this;
 		}
 		
