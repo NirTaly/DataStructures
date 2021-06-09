@@ -75,7 +75,7 @@ int main(void)
 	buildArrayTest();
 
 	getI();
-	
+
 	return 0;
 }
 
@@ -347,17 +347,17 @@ void buildArrayTest()
 
 	tree.buildFromArray(array, 16);
 
-	int* test_arr[16];
+	int test_arr[16];
 	tree.inorder(16, test_arr);
 	
 	bool flag = true;
 
 	for (size_t i = 0; i < 16; i++)
 	{
-		if (*(test_arr[i]) != array[i])
+		if (test_arr[i] != array[i])
 		{
 			flag = false;
-			std::cout << "Expected: " << array[i] << " Got: " << *(test_arr[i]) << std::endl;
+			std::cout << "Expected: " << array[i] << " Got: " << test_arr[i] << std::endl;
 		}
 	}
 
@@ -388,5 +388,4 @@ void getI()
 	}
 
 	TEST_INT(11, flag, true, "getI");
-
 }

@@ -22,9 +22,6 @@ namespace DS
 		T& get(size_t i);
 		void set(size_t i, const T& other);
 
-		// VectorProxy operator[](size_t pos);  
-        // bool operator[](size_t pos) const; // for const obj.
-
 		/*
 		* Push/Pop element to/from Vector 
 		* Complexity = O(1)
@@ -46,37 +43,6 @@ namespace DS
 		T* array;
 		size_t m_capacity;
 		size_t m_size;
-
-		// class VectorProxy
-		// {
-		// public:
-		// 	VectorProxy(Vector& bit_arr, size_t pos): m_bit_arr(bit_arr), m_pos(pos) 
-		// 	{ }
-
-		// 	// Invoked when proxy is used to modify the value.
-		// 	VectorProxy& operator=(T value)  // b1[1] = true;
-		// 	{
-		// 		m_vector.array[m_pos] = value;
-		// 		return *this; 
-		// 	}
-
-		// 	// Invoked when proxy is used to read the value.
-		// 	operator bool() const // if (b1[1]) { ... }
-		// 	{
-		// 		return (m_vector.array[m_pos]);
-		// 	}
-
-		// 	VectorProxy& operator=(const VectorProxy& other) // b1[1] = b2[5]
-		// 	{
-
-		// 		// *this = bool(other);
-
-		// 		// return (*this);
-		// 	}
-		// private:
-		// 	Vector& m_vector;
-		// 	size_t m_pos;
-		// };
 	};
 
 	template <typename T>

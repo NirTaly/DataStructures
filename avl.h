@@ -11,14 +11,6 @@ T Max(T a, T b)
 	return (a > b ? a : b);
 }
 
-
-/***
- * num of sons									[V]
- * Build recursive tree from merged array		[]
- * Get item number i							[]
-*/
-
-
 namespace DS
 {
 	template <typename T>
@@ -92,7 +84,7 @@ namespace DS
 		* Travel inorder, and put the first i nodes in arr
 		* Complexity = O(i)
 		 */
-		void inorder(size_t i, T** arr);
+		void inorder(size_t i, T* arr);
 		
 		void buildFromArray(T* array, int size);
 		T getIRank(int i);
@@ -619,13 +611,13 @@ namespace DS
 	}
 
 	template <typename T>
-	void AVL<T>::inorder(size_t i, T** arr)
+	void AVL<T>::inorder(size_t i, T* arr)
 	{
 		size_t counter = 0;
 		
 		for (m_iter = m_start; m_iter && counter < i; m_iter = AVLNext(m_iter))
 		{
-			arr[counter++] = m_iter->data;
+			arr[counter++] = *(m_iter->data);
 		}
 
 		if (m_iter == m_end && i > counter)
