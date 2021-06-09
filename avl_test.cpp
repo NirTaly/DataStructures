@@ -9,7 +9,7 @@
 #include <stdio.h>  /* printf */
 
 #include "utils.h"
-#include "wet1/avl.h"  /* Recursive Binary Search Tree */
+#include "avl.h"  /* Recursive Binary Search Tree */
 
 using namespace DS;
 template <class T> void print(const T& x) { std::cout << x << std::endl; }
@@ -30,6 +30,8 @@ void RemoveUltimateTest2(void);
 void RemoveUltimateTest3(void);
 void inorderTest();
 void nextDataTest();
+void buildArrayTest();
+void getI();
 /*****************************************************************************/
 /*
 	[x]	Create
@@ -70,6 +72,10 @@ int main(void)
 	
 	nextDataTest();
 
+	buildArrayTest();
+
+	getI();
+	
 	return 0;
 }
 
@@ -297,9 +303,9 @@ void inorderTest()
 
 	tree.print();
 
-	int arr[10];
-	tree.inorder(10, arr);
-	TEST_ARRAY(arr,array, 10)
+	// int arr[10];
+	// tree.inorder(10, arr);
+	// TEST_ARRAY(arr,array, 10)
 }
 
 void nextDataTest()
@@ -333,6 +339,54 @@ void nextDataTest()
 	}	catch(const AVLNextNotFound&)	{
 		print("AVLNextNotFound");
 	}
+}
+
+void buildArrayTest()
+{
+	AVL<int> tree;
+
+	tree.buildFromArray(array, 16);
+
+	int* test_arr[16];
+	tree.inorder(16, test_arr);
 	
+	bool flag = true;
+
+	for (size_t i = 0; i < 16; i++)
+	{
+		if (*(test_arr[i]) != array[i])
+		{
+			flag = false;
+			std::cout << "Expected: " << array[i] << " Got: " << *(test_arr[i]) << std::endl;
+		}
+	}
+
+	TEST_INT(10, flag, true, "buildFromArray");
+}
+
+void getI()
+{
+	AVL<int> tree;
+
+	tree.buildFromArray(array, 16);
+
+	int test_arr[16];
+	for (int i = 0; i < 16; i++)
+	{
+		test_arr[i] = tree.getIRank(i);
+	}
 	
+	bool flag = true;
+
+	for (size_t i = 0; i < 16; i++)
+	{
+		if (test_arr[i] != array[i])
+		{
+			flag = false;
+			std::cout << "Expected: " << array[i] << " Got: " << test_arr[i] << std::endl;
+		}
+	}
+
+	TEST_INT(11, flag, true, "getI");
+
 }

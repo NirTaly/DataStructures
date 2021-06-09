@@ -13,9 +13,9 @@ T Max(T a, T b)
 
 
 /***
- * num of left sons
- * Build recursive tree from merged array
- * Get item number i
+ * num of sons									[V]
+ * Build recursive tree from merged array		[]
+ * Get item number i							[]
 */
 
 
@@ -93,6 +93,10 @@ namespace DS
 		* Complexity = O(i)
 		 */
 		void inorder(size_t i, T** arr);
+		
+		void buildFromArray(T* array, int size);
+		T getIRank(int i);
+
 		/*
 		* Prints the AVL tree Inorder
 		* Complexity = O(n)
@@ -104,17 +108,18 @@ namespace DS
 		struct AvlNode
 		{	
 			AvlNode(T* data, size_t height = 1, AvlNode* l = nullptr,AvlNode* r = nullptr,AvlNode* p = nullptr) : 
-				data(new T(*data)), height(height), left(l), right(r), parent(p), num_of_sons(0)
+				data(new T(*data)), height(height), left(l), right(r), parent(p), left_sons(0), right_sons(0)
 			{ }
 			
 			~AvlNode() { delete data; left = nullptr; right = nullptr; parent = nullptr;}
 
 			T* data;
-			size_t height;
+			size_t height; 
 			AvlNode* left;
 			AvlNode* right;
 			AvlNode* parent;
-			size_t num_of_sons;
+			size_t left_sons;//rank
+			size_t right_sons;//rank
 		};
 		
 	// Aux Functions
@@ -133,7 +138,8 @@ namespace DS
 		AvlNode* GetNode(T* data);
 		AvlNode* AVLNext(AvlNode* node);
 		T* GetNextData(AvlNode* node);
-		
+		AvlNode* buildRec(T* array, int start, int end);
+		T RecGetI(AvlNode* node,int i);
 		void  AVLPrintNode(AvlNode* node, size_t depth) const;
 
 	// Private member
@@ -291,7 +297,6 @@ namespace DS
 		m_root = InsertRec(m_root, data);
 		m_start = LeftMostNode(m_root);
 		m_end = RightMostNode(m_root);
-
 	}
 
 	template <typename T>
@@ -310,11 +315,13 @@ namespace DS
 			{
 				node->right = tmp;
 				tmp->parent = node;
+				node->right_sons++;
 			}
 			else
 			{
 				node->left = tmp;
 				tmp->parent = node;
+				node->left_sons++;
 			}			
 		}
 
@@ -322,10 +329,12 @@ namespace DS
 		else if (is_right_son)
 		{
 			node->right = InsertRec(node->right, data);
+			node->right_sons++;
 		}
 		else if (is_left_son)
 		{
 			node->left = InsertRec(node->left, data);
+			node->left_sons++;
 		}
 		/*	Duplicate nodes are not allowed */
 		else
@@ -333,8 +342,6 @@ namespace DS
 			throw AVLDuplicate();
 		}
 		
-		node->num_of_sons++;
-
 		/* height update */
 		node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
 		
@@ -380,14 +387,15 @@ namespace DS
 		node->left = new_head->right;
 		new_head->right = node;
 
+
+		//rank control
+		node->left_sons = new_head->right_sons;
+		new_head->right_sons += node->right_sons + 1;
+		//
+		
 		if (node->left)
 		{
 			node->left->parent = node;
-
-		}
-		else
-		{
-
 		}
 
 		new_head->parent = node->parent;
@@ -407,14 +415,16 @@ namespace DS
 		node->right = new_head->left;
 		new_head->left = node;
 
+		//rank control
+		node->right_sons = new_head->left_sons;
+		new_head->left_sons += node->left_sons + 1;
+		//
+		
 		if (node->right)
 		{
 			node->right->parent = node;
 		}
-		else
-		{
 
-		}
 		new_head->parent = node->parent;
 		node->parent = new_head;
 
@@ -613,7 +623,7 @@ namespace DS
 	{
 		size_t counter = 0;
 		
-		for (m_iter = m_start; m_iter != m_end && counter < i; m_iter = AVLNext(m_iter))
+		for (m_iter = m_start; m_iter && counter < i; m_iter = AVLNext(m_iter))
 		{
 			arr[counter++] = m_iter->data;
 		}
@@ -643,6 +653,84 @@ namespace DS
 	}
 	
 /*******************************************************************************/
+
+template <typename T>
+void AVL<T>::buildFromArray(T* array, int size)
+{
+    m_root = buildRec(array, 0, size-1);
+	m_start = LeftMostNode(m_root);
+	m_end = RightMostNode(m_root);
+}
+
+template <typename T>
+typename AVL<T>::AvlNode* AVL<T>::buildRec(T* array, int start, int end)
+{
+	if (start > end) 
+	{
+		return nullptr;
+	}
+    	
+    int mid = (start + end)/2;
+	
+    AvlNode* node = new AvlNode(&array[mid]);
+  
+    node->left = buildRec(array, start, mid - 1); 
+  
+    node->right = buildRec(array, mid + 1, end); 
+  
+	/* Parent, NumOfSons Update*/
+	if (node->right)
+	{
+		node->right->parent = node;
+		node->right_sons = node->right->right_sons + node->right->left_sons + 1;
+	}
+	if (node->left)
+	{
+		node->left->parent = node;
+		node->left_sons = node->left->right_sons + node->left->left_sons + 1;
+	}
+	
+	/* Height Update */
+	node->height = 1 + Max(NodeHeight(node->left), NodeHeight(node->right));
+
+    return node; 
+}
+
+/*******************************************************************************/
+
+	template <typename T>
+	T AVL<T>::getIRank(int i)
+	{
+		if (isEmpty())
+		{
+			throw AVLEmpty();
+		}
+		else if (i < 0 || i > int(size()))
+		{
+			throw Failure();
+		}
+		
+		return RecGetI(m_root, i);
+	}
+
+	template <typename T>
+	T AVL<T>::RecGetI(AvlNode* node, int i)
+	{
+		int choice = node->left_sons - i;
+		if (choice == 0)
+		{
+			return *(node->data);
+		}
+		else if (choice > 0)
+		{
+			return RecGetI(node->left, i);
+		}
+		else
+		{
+			return RecGetI(node->right, i - node->left_sons - 1);
+		}
+	}
+/*******************************************************************************/
 	template <typename T>
 	void  AVL<T>::AVLPrintNode(AvlNode* node, size_t depth) const
 	{
@@ -653,7 +741,7 @@ namespace DS
 		}
 		if (nullptr != node)
 		{
-			std::cout << "├╴ " << *(node->data) << std::endl;
+			std::cout << "├╴ " << *(node->data) << " left: " << node->left_sons << " right: " << node->right_sons << std::endl;
 			AVLPrintNode(node->left, depth + 1);
 			AVLPrintNode(node->right, depth + 1);
 		} else {
@@ -667,7 +755,7 @@ namespace DS
 		if (nullptr != m_root)
 		{
 			std::cout << "\nStart Print:" << std::endl;
-			std::cout << "├╴ " << *(m_root->data) << std::endl;
+			std::cout << "├╴ " << *(m_root->data) << " left: " << m_root->left_sons << " right: " << m_root->right_sons << std::endl;
 
 			AVLPrintNode(m_root->left, 1);
 			AVLPrintNode(m_root->right, 1);
