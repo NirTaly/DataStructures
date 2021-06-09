@@ -30,7 +30,7 @@ namespace DS
 	private:
 		Vector<int> parents;
 		Vector<int> sizes;
-		Vector<SharedPtr<int>> heads;
+		Vector<int> heads;
 		Vector<SharedPtr<T>> data;
 
 		int findRec(int set);
@@ -45,7 +45,7 @@ namespace DS
 		parents.pushBack(EMPTY);
 		size.pushBack(1);
 		data.pushBack();
-		heads.pushBack(new int(set));
+		heads.pushBack(EMPTY)
 	}
 
 /*******************************************************************************/
@@ -54,7 +54,7 @@ namespace DS
 	template <typename T>
 	SharedPtr<T> UF<T>::find(int set)
     {
-        return data[findRec(set)];
+        return data[findRec(set)];       
     }
 
     template <typename T>
@@ -64,8 +64,8 @@ namespace DS
             return set;
 
         int master = findRec(parents[set]);
-        parents[set] = master;
-
+        parents[set] = master;        
+        
         return master;   
     }
 /*******************************************************************************/
@@ -77,16 +77,12 @@ namespace DS
 		int max_set = (set1 > set2 ? set1 : set2);
 		int min_set = (set1 > set2 ? set2 : set1);
 		
-		// int min_parent = findRec(min_set);
-		// int max_parent = findRec(max_set);
-		int min_parent = *(heads[min_set]);
-		int max_parent = *(heads[max_set]);
-
-		*(heads[min_set]) = *(heads[max_set]);
+		int min_parent = findRec(min_set);
+		int max_parent = findRec(max_set);
 
 		parents[min_parent] = max_parent;
 		sizes[max_parent] += sizes[min_parent];
-
+		
 		data[max_parent] += data[min_parent]; // operator += new struct
 		data[min_parent] = nullptr;
 	}
