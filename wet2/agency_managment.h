@@ -1,18 +1,15 @@
-#ifndef __AGENCY_DEALERSHIP_H__
-#define __AGENCY_DEALERSHIP_H__
+#ifndef __AGENCY_MANAGMENT_H__
+#define __AGENCY_MANAGMENT_H__
 
 #include <iostream>
 #include <stddef.h>			/* size_t */
 #include <cstring>			/* memcpy */
 
-#include "avl.h"
-#include "union_find.h"
-#include "shared_ptr.h"
+#include "../avl.h"
+#include "../union_find.h"
+#include "../shared_ptr.h"
 
-#include "library.h"
-
-#define BAD_TYPE -1
-#define MIN_TYPE -2
+#include "library2.h"
 
 namespace DS
 {
@@ -49,11 +46,14 @@ namespace DS
 		AgencyInfo(const AgencyInfo& ) = default;
 		AgencyInfo& operator=(const AgencyInfo& ) = default;
         
-		bool operator==(const AgencyInfo& car) const{
-			return (car.typeID == typeID && car.sales == sales);
+		virtual bool operator==(const AgencyInfo& car) const{
+			return (car.typeID == typeID);
 		}
+		
+		void addSales(int new_val)  { sales += new_val; }
+		void setSales(int new_val)	{sales = new_val; }
 
-		int getType()  const { return type; }
+		int getType()  const { return typeID; }
 		int getSales() const { return sales; }
 	private:
         int typeID;
@@ -95,8 +95,8 @@ namespace DS
 
 	struct Agency
 	{
-		Agency();
-		~Agency();
+		Agency() = default;
+		~Agency() = default;
 
 		Agency(const Agency& ) = delete;
 		Agency& operator=(const Agency& ) = delete;
@@ -147,26 +147,25 @@ namespace DS
 
     struct AgencyManager
     {
-        AgencyManager();
+        AgencyManager() = default;
         ~AgencyManager() = default;
 		AgencyManager(const AgencyManager&) = delete;
 		AgencyManager& operator=(const AgencyManager& ) = delete;
 
-		void AddAgency();					
+		void AddAgency();
 		
 		void SellCar(int agencyID, int typeID, int k);					
 
-		void UniteAgencies(int agencyID1, int agencyID2); 			
+		void UniteAgencies(int agencyID1, int agencyID2);
 		
 		void GetIthSoldType(int agencyID, int i, int *res);
 
 		/*******************************/
 
 		int agency_counter;
-		
- 
+		UF<Agency> agencies;
 	};
 }
 
-#endif     /* __AGENCY_DEALERSHIP_H__ */
+#endif     /* __AGENCY_MANAGMENT_H__ */
 
