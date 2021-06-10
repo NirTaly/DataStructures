@@ -5,9 +5,9 @@
 #include <stddef.h>			/* size_t */
 #include <cstring>			/* memcpy */
 
-#include "../avl.h"
-#include "../union_find.h"
-#include "../shared_ptr.h"
+#include "avl.h"
+#include "union_find.h"
+#include "shared_ptr.h"
 
 #include "library2.h"
 

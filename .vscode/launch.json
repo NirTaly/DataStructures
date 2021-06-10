@@ -10,7 +10,7 @@
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}",
 			// "args": ["<", "../tests/rand_tests/in/3.txt"],
-			"args": ["<", "in.txt"],
+			"args": ["<", "mytests/in5.txt"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],
