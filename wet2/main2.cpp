@@ -80,7 +80,7 @@ static bool isInit = false;
 /* main                                                                    */
 /***************************************************************************/
 
-int main(int argc, const char**argv) {
+int main() {
 
     char buffer[MAX_STRING_INPUT_SIZE];
 
@@ -177,7 +177,7 @@ static errorType OnInit(void** DS, const char* const command) {
         return (error_free);
     };
     isInit = true;
-
+    (void)command;
     ValidateRead(0, 0, "%s failed.\n", commandStr[INIT_CMD]);
     *DS = Init();
 
@@ -193,7 +193,7 @@ static errorType OnInit(void** DS, const char* const command) {
 static errorType OnAddAgency(void* DS, const char* const command) {
     ValidateRead(0, 0, "%s failed.\n", commandStr[ADDAGENCY_CMD]);
     StatusType res = AddAgency(DS);
-
+    (void)command;
     if (res != SUCCESS) {
         printf("%s: %s\n", commandStr[ADDAGENCY_CMD], ReturnValToStr(res));
         return error_free;
@@ -252,7 +252,7 @@ static errorType OnQuit(void** DS, const char* const command) {
         printf("quit failed.\n");
         return error;
     };
-
+    (void)command;
     isInit = false;
     printf("quit done.\n");
     return error_free;

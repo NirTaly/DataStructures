@@ -649,6 +649,8 @@ namespace DS
 template <typename T>
 void AVL<T>::buildFromArray(T* array, int size)
 {
+	RecDestroyAVL(m_root);
+	
     m_root = buildRec(array, 0, size-1);
 	m_start = LeftMostNode(m_root);
 	m_end = RightMostNode(m_root);
@@ -697,7 +699,7 @@ typename AVL<T>::AvlNode* AVL<T>::buildRec(T* array, int start, int end)
 		{
 			throw AVLEmpty();
 		}
-		else if (i < 0 || i > int(size()))
+		else if (i < 0 || i >= int(size()))
 		{
 			throw Failure();
 		}

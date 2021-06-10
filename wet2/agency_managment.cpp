@@ -26,7 +26,7 @@ namespace DS
 		try
 		{
 			found_type_node =  agency_data->typeAVL.findData(&typeinfo);
-		} catch(const AVLNotFound&)	{
+		} catch(const Exception&)	{
 			// if type doesnt exist yet	
 			agency_data->typeAVL.insert(&typeinfo);
 		}

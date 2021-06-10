@@ -9,7 +9,7 @@ namespace DS
 	class SharedPtr
 	{
 	public:
-		/*explicit*/ SharedPtr(T* ptr = nullptr): m_ref_count(new size_t(1)), m_data(ptr) { }
+		SharedPtr(T* ptr = nullptr): m_ref_count(new size_t(1)), m_data(ptr) { }
 		~SharedPtr()
 		{
 			Destroy();

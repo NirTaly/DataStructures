@@ -16,8 +16,8 @@ namespace DS
 		Vector(size_t capacity = 4);
 		~Vector();
 
-		Vector(const Vector& ) = delete;
-		Vector& operator=(const Vector& ) = delete;
+		Vector(const Vector& vec);
+		Vector& operator=(const Vector& vec);
 
 		T& get(size_t i);
 		void set(size_t i, T other);
@@ -51,6 +51,26 @@ namespace DS
 	Vector<T>::Vector(size_t capacity) : array(new T[capacity]), m_capacity(capacity), m_size(0)
 	{	}
 	
+	template <typename T>
+	Vector<T>::Vector(const Vector<T>& vec) : array(new T[vec.m_capacity]), m_capacity(vec.m_capacity), m_size(vec.m_size)
+	{
+		for (int i = 0; i < m_capacity; i++)
+		{
+			array[i] = vec.array[i];
+		}
+	}
+
+	template <typename T>
+	Vector<T>& Vector<T>::operator=(const Vector<T>& vec)		// specific for non-shrinking vector
+	{
+		for (size_t i = 0; i < vec.m_capacity; i++)
+		{
+			array[i] = vec.array[i];
+		}
+
+		return *this;
+	}
+
 	template <typename T>
 	Vector<T>::~Vector()
 	{
@@ -106,7 +126,7 @@ namespace DS
 		}
 
 		T* new_array = new T[new_capacity];
-		memcpy(new_array, array, m_capacity * sizeof(T));
+		memcpy((void*)new_array, (void*)array, m_capacity * sizeof(T));
 		delete[] array;
 		array = new_array;
 	}

@@ -45,7 +45,7 @@ namespace DS
 
 		parents.pushBack(EMPTY);
 		sizes.pushBack(1);
-		data.pushBack(nullptr);
+		data.pushBack(new T());
 	}
 
 /*******************************************************************************/
@@ -54,7 +54,7 @@ namespace DS
 	template <typename T>
 	SharedPtr<T> UF<T>::find(int set)
     {
-        return data.get(findRec(set));
+        return data[findRec(set)];
     }
 
     template <typename T>
